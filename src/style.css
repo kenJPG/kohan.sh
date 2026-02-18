@@ -19,7 +19,8 @@ body {
   padding: 60px 24px 80px;
 }
 
-/* Typography - just plain text, different weights */
+/* ── Typography ───────────────────────────────────────────────── */
+
 h1 {
   font-size: 22px;
   font-weight: 700;
@@ -55,24 +56,41 @@ a:hover {
   color: #000;
 }
 
-/* Muted text */
 .dim {
   color: #888;
 }
 
-/* Horizontal rules - plain dividers */
 hr {
   border: none;
   border-top: 1px solid #ddd;
   margin: 32px 0;
 }
 
-/* Indentation for sub-content */
 .indent {
   padding-left: 24px;
 }
 
-/* Entry blocks (experience, education) */
+/* ── Contact block ────────────────────────────────────────────── */
+
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  color: #888;
+  font-size: 13px;
+  margin: 12px 0 16px;
+}
+
+.contact a {
+  color: #888;
+}
+
+.contact a:hover {
+  color: #2c2c2c;
+}
+
+/* ── Entry blocks ─────────────────────────────────────────────── */
+
 .entry {
   margin-bottom: 24px;
 }
@@ -90,11 +108,49 @@ hr {
   margin-bottom: 4px;
 }
 
-/* Tables - plain, no borders, just alignment */
+/* Education — tighten sub-details into a single block */
+.edu p {
+  margin-bottom: 2px;
+}
+
+.edu p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Experience entries ───────────────────────────────────────── */
+
+.job-title {
+  margin-bottom: 2px;
+}
+
+.logo-company {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #888;
+  font-size: 13px;
+}
+
+.logo-company img {
+  height: 18px;
+  width: auto;
+  display: block;
+  border-radius: 3px;
+}
+
+/* Tech stack — reads as metadata, not body copy */
+.tech {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 0;
+}
+
+/* ── Tables (Skills) ──────────────────────────────────────────── */
+
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 12px;
 }
 
 td {
@@ -115,25 +171,29 @@ td.label {
   width: 1%;
 }
 
-/* Torus knot - the one visual element */
-.torus {
-  font-size: 7px;
-  line-height: 1.05;
+/* ── ASCII face ───────────────────────────────────────────────── */
+
+.me {
   white-space: pre;
-  color: #bbb;
-  text-align: center;
   margin-bottom: 40px;
   user-select: none;
   overflow: hidden;
+  color: #999;
+  line-height: 1.05;
+  font-size: 1.6px;
+  letter-spacing: 0;
+  text-align: left;
 }
 
-/* Selection */
+/* ── Selection ────────────────────────────────────────────────── */
+
 ::selection {
   background: #2c2c2c;
   color: #fafaf8;
 }
 
-/* Responsive */
+/* ── Responsive ───────────────────────────────────────────────── */
+
 @media (max-width: 600px) {
   #page {
     padding: 32px 16px 60px;
@@ -168,8 +228,8 @@ td.label {
     font-weight: 700;
   }
 
-  .torus {
-    font-size: 5px;
+  .me {
+    font-size: 0.9px;
   }
 
   .indent {

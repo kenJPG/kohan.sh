@@ -1,0 +1,88 @@
+{
+  "name": "Kenneth Chen Ko Han",
+  "tagline": "Also just a passenger on this train",
+  "email": "kenneth.chen1337@gmail.com",
+  "location": "Singapore",
+  "links": {
+    "linkedin": "https://linkedin.com/in/kenneth-chen-ko-han",
+    "huggingface": "https://huggingface.co/qenneth"
+  },
+  "bio": "I build AI systems that ship to production — computer vision pipelines, speech recognition, voice agents. Most of my work sits at the intersection of \"make the model work\" and \"make it work reliably\"",
+  "experience": [
+    {
+      "company": "Resumify",
+      "logo": "resumify.png",
+      "role": "AI Lead, Co-founder",
+      "date": "2023 - 2026",
+      "description": "Co-founded non-profit with YellowRibbon.gov.sg, HTX, and Singapore Prison Service. AI platform helping ex-inmates craft resumes for job placement. Secured $24,100 grant from National Youth Council. Signed 12-month MOU with YellowRibbon. Featured on Zao Bao.",
+      "tech": "Next.js, LLM Agents, OpenAI API, ElevenLabs"
+    },
+    {
+      "company": "RAiD, Republic of Singapore Air Force",
+      "logo": "raid.png",
+      "role": "AI Engineer Volunteer",
+      "date": "2023 - 2026",
+      "description": "Video analytics platform for RSAF with NUS grad students and NCS engineers. Speech recognition and speaker diarization for Air Traffic Control using NVIDIA NeMo and vLLM on H200 GPUs. Finetuned canary-1b and parakeet-tdt.",
+      "tech": "NVIDIA NeMo, vLLM, PyTorch, NVIDIA H200"
+    },
+    {
+      "company": "Bifrost AI",
+      "logo": "bifrost.jpeg",
+      "role": "AI Intern",
+      "date": "2024",
+      "description": "Prototyped novel data visualization method for customers like NASA, BigBear AI and DSTA using JinaCLIP. Trained YOLOv6-lite for ST Engineering's Unmanned Vehicles Team, boosting accuracy 16%+. Fine-tuned StabilityAI VAE for synthetic-to-real domain adaptation.",
+      "tech": "YOLO, VAE, JinaCLIP, OpenCV"
+    },
+    {
+      "company": "GovTech Singapore",
+      "logo": "govtech.png",
+      "role": "AI Engineer Intern",
+      "date": "2023 - 2024",
+      "description": "Red-teamed GovTech's AI Image Detector with custom-trained LoRAs. Built end-to-end CV pipeline for MSO's OneService App automating classification of thousands of daily municipal reports. Developed real-time animal welfare detection for NParks using OWLv2. Prototyped XAI tool using Few-Shot Segmentation.",
+      "tech": "OWLv2, LoRA, Few-Shot Segmentation, XAI"
+    }
+  ],
+  "research": [
+    {
+      "title": "Not serious researcher",
+      "org": "2025",
+      "detail": "Holding State-of-the-Art Word Error Rate on the [ATC-ASR benchmark](https://huggingface.co/qenneth/parakeet-tdt-0.6b-v3-finetuned-for-ATC) with finetuned parakeet-tdt"
+    },
+    {
+      "title": "SEA-VL Contributor",
+      "org": "SEACrowd, 2025",
+      "detail": "Annotated data for ACL 2025 accepted paper on vision-language datasets"
+    },
+    {
+      "title": "Founder, Competitive Programming Interest Group",
+      "org": "SP, 2022",
+      "detail": "150+ member Discord / 3 workshops / 3 competitions / team ranked top 6% globally at Reply CodeTeen"
+    },
+    {
+      "title": "Vice President, AI Club",
+      "org": "SP, 2022",
+      "detail": "Nationwide hackathon across all 5 polytechnics, sponsored by Google and AI Singapore"
+    }
+  ],
+  "education": [
+    {
+      "school": "National University of Singapore, NUS College",
+      "date": "2026 - 2029",
+      "degree": "Bachelors in Computer Science, Minor in Mathematics",
+      "awards": "NUS Merit Scholarship"
+    },
+    {
+      "school": "Singapore Polytechnic",
+      "date": "2021 - 2024",
+      "degree": "Diploma in Applied AI and Analytics",
+      "awards": "CGPA 4.0/4.0 / Lee Kuan Yew Award / IMDA Gold Medal / SP Scholarship"
+    }
+  ],
+  "skills": {
+    "Languages": "Python, C++, JavaScript, SQL",
+    "AI/ML": "PyTorch, OpenCV, YOLO, Grounding DINO, Transformers, NVIDIA NeMo",
+    "GenAI": "LLM Agents, LoRA, VAEs, MLOps",
+    "Web": "Next.js, React",
+    "Infra": "AWS Lambda, Docker, GCP, NVIDIA CUDA, Git, LaTeX"
+  }
+}
