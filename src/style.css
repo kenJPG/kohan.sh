@@ -1,0 +1,178 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  background: #fafaf8;
+  color: #2c2c2c;
+  padding: 0;
+}
+
+#page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+}
+
+/* Typography - just plain text, different weights */
+h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 2px;
+  letter-spacing: -0.5px;
+}
+
+h2 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  margin-top: 8px;
+}
+
+p {
+  margin-bottom: 12px;
+}
+
+strong {
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+a {
+  color: #2c2c2c;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  color: #000;
+}
+
+/* Muted text */
+.dim {
+  color: #888;
+}
+
+/* Horizontal rules - plain dividers */
+hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 32px 0;
+}
+
+/* Indentation for sub-content */
+.indent {
+  padding-left: 24px;
+}
+
+/* Entry blocks (experience, education) */
+.entry {
+  margin-bottom: 24px;
+}
+
+.entry:last-child {
+  margin-bottom: 0;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+/* Tables - plain, no borders, just alignment */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+}
+
+td {
+  padding: 4px 0;
+  vertical-align: top;
+}
+
+td:last-child {
+  text-align: right;
+  white-space: nowrap;
+  padding-left: 24px;
+}
+
+td.label {
+  white-space: nowrap;
+  padding-right: 24px;
+  color: #888;
+  width: 1%;
+}
+
+/* Torus knot - the one visual element */
+.torus {
+  font-size: 7px;
+  line-height: 1.05;
+  white-space: pre;
+  color: #bbb;
+  text-align: center;
+  margin-bottom: 40px;
+  user-select: none;
+  overflow: hidden;
+}
+
+/* Selection */
+::selection {
+  background: #2c2c2c;
+  color: #fafaf8;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  #page {
+    padding: 32px 16px 60px;
+  }
+
+  h1 {
+    font-size: 18px;
+  }
+
+  .entry-header {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  td:last-child {
+    text-align: left;
+    padding-left: 0;
+  }
+
+  table td {
+    display: block;
+    padding: 2px 0;
+  }
+
+  table tr {
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  td.label {
+    color: #2c2c2c;
+    font-weight: 700;
+  }
+
+  .torus {
+    font-size: 5px;
+  }
+
+  .indent {
+    padding-left: 16px;
+  }
+}
