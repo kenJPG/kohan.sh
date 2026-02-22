@@ -183,6 +183,9 @@ td.label {
   font-size: 1.6px;
   letter-spacing: 0;
   text-align: left;
+  -webkit-text-size-adjust: none;
+  -moz-text-size-adjust: none;
+  text-size-adjust: none;
 }
 
 /* ── Selection ────────────────────────────────────────────────── */
@@ -233,8 +236,11 @@ td.label {
   }
 
   .me {
-    font-size: 0.88px;
-    max-height: 120px;
+    transform: scale(0.55);
+    transform-origin: top left;
+    max-height: none;
+    overflow: visible;
+    margin-bottom: -80px;
   }
 
   .indent {
