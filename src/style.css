@@ -228,6 +228,11 @@ td.label {
   .me,
   .me-img {
     color: #666;
+    fill: #666;
+  }
+
+  .me-img text {
+    fill: #666;
   }
 
   hr {
