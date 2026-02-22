@@ -342,7 +342,7 @@ const html = `<!DOCTYPE html>
 <pre class="me" id="asciiMe">
 ${esc(meAscii)}
 </pre>
-<img class="me-img" src="./public/me-ascii.png" alt="ASCII art portrait" />
+<img class="me-img" src="/me-ascii.png" alt="ASCII art portrait" />
 
 <h1>${esc(content.name)}</h1>
 <p class="dim">${esc(content.tagline)}</p>
