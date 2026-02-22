@@ -191,6 +191,7 @@ td.label {
   height: auto;
   margin-bottom: 20px;
   user-select: none;
+  color: #999;
 }
 
 /* ── Selection ────────────────────────────────────────────────── */
