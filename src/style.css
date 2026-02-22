@@ -201,62 +201,6 @@ td.label {
   color: #fafaf8;
 }
 
-/* ── Dark Mode ─────────────────────────────────────────────────── */
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #1a1a1a;
-    color: #e0e0e0;
-  }
-
-  strong {
-    color: #f0f0f0;
-  }
-
-  a {
-    color: #e0e0e0;
-  }
-
-  a:hover {
-    color: #fff;
-  }
-
-  .dim {
-    color: #777;
-  }
-
-  .me,
-  .me-img {
-    color: #666;
-    fill: #666;
-  }
-
-  .me-img text {
-    fill: #666;
-  }
-
-  hr {
-    border-top-color: #333;
-  }
-
-  .logo-company {
-    color: #777;
-  }
-
-  .tech {
-    color: #666;
-  }
-
-  td.label {
-    color: #777;
-  }
-
-  ::selection {
-    background: #e0e0e0;
-    color: #1a1a1a;
-  }
-}
-
 /* ── Responsive ───────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
