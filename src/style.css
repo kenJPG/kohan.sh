@@ -236,11 +236,8 @@ td.label {
   }
 
   .me {
-    transform: scale(0.55);
-    transform-origin: top left;
-    max-height: none;
-    overflow: visible;
-    margin-bottom: -80px;
+    font-size: 0.9px;
+    margin-bottom: 20px;
   }
 
   .indent {
