@@ -166,6 +166,40 @@ async function imageToAscii(
   return pixelsToAscii(pixels, width, height);
 }
 
+// ── ASCII art → PNG for mobile ───────────────────────────────────────
+
+/**
+ * Render ASCII art text into a PNG image using Sharp's SVG overlay.
+ * This is needed because mobile browsers enforce minimum font sizes,
+ * making sub-pixel ASCII art invisible.
+ */
+async function asciiToPng(asciiText, outputPath) {
+  const lines = asciiText.split("\n");
+  const rows = lines.length;
+  const cols = Math.max(...lines.map((l) => l.length));
+
+  const charW = 6;
+  const charH = 6.3;
+  const imgW = Math.ceil(cols * charW);
+  const imgH = Math.ceil(rows * charH);
+
+  // Build SVG with the ASCII text rendered in monospace
+  const escapedLines = lines
+    .map(
+      (line, i) =>
+        `<text x="0" y="${(i + 1) * charH}" fill="#999" font-family="'Courier New', monospace" font-size="${charH}px" xml:space="preserve">${line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</text>`
+    )
+    .join("\n");
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${imgW}" height="${imgH}">
+  <rect width="100%" height="100%" fill="#fafaf8"/>
+  ${escapedLines}
+</svg>`;
+
+  await sharp(Buffer.from(svg)).png().toFile(outputPath);
+  console.log(`  ✓ Face PNG: ${outputPath} (${imgW}×${imgH})`);
+}
+
 // ── Logo image function ─────────────────────────────────────────────
 
 /**
@@ -192,6 +226,12 @@ if (existsSync(ME_PATH)) {
   console.log(`  ✓ Face: me.png → ASCII (${meAscii.split("\n").length} lines)`);
 } else {
   console.warn("  ✗ No me.txt or me.png found — hero section will be empty");
+}
+
+// Generate mobile PNG from the ASCII art
+const ME_IMG_PATH = join(ROOT, "public", "me-ascii.png");
+if (meAscii) {
+  await asciiToPng(meAscii, ME_IMG_PATH);
 }
 
 // Load and convert logos to img tags
@@ -302,6 +342,7 @@ const html = `<!DOCTYPE html>
 <pre class="me" id="asciiMe">
 ${esc(meAscii)}
 </pre>
+<img class="me-img" src="./public/me-ascii.png" alt="ASCII art portrait" />
 
 <h1>${esc(content.name)}</h1>
 <p class="dim">${esc(content.tagline)}</p>

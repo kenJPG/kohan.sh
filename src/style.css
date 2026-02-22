@@ -183,9 +183,14 @@ td.label {
   font-size: 1.6px;
   letter-spacing: 0;
   text-align: left;
-  -webkit-text-size-adjust: none;
-  -moz-text-size-adjust: none;
-  text-size-adjust: none;
+}
+
+.me-img {
+  display: none;
+  width: 55%;
+  height: auto;
+  margin-bottom: 20px;
+  user-select: none;
 }
 
 /* ── Selection ────────────────────────────────────────────────── */
@@ -236,8 +241,11 @@ td.label {
   }
 
   .me {
-    font-size: 0.9px;
-    margin-bottom: 20px;
+    display: none;
+  }
+
+  .me-img {
+    display: block;
   }
 
   .indent {
