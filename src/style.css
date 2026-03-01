@@ -194,7 +194,11 @@ td.label {
   height: auto;
   margin: 0 auto 20px;
   user-select: none;
-  color: #999;
+  color: #6f6f6f;
+}
+
+.me-img text {
+  font-weight: 600;
 }
 
 /* ── Selection ────────────────────────────────────────────────── */
