@@ -179,8 +179,8 @@ function asciiToSvg(asciiText) {
   const rows = lines.length;
   const cols = Math.max(...lines.map((l) => l.length));
 
-  const charW = 6;
   const charH = 6.3;
+  const charW = charH * 0.6;
   const imgW = Math.ceil(cols * charW);
   const imgH = Math.ceil(rows * charH);
 
@@ -191,7 +191,7 @@ function asciiToSvg(asciiText) {
     )
     .join("\n");
 
-  return `<svg class="me-img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${imgW} ${imgH}" fill="currentColor" role="img" aria-label="ASCII art portrait">
+  return `<svg class="me-img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${imgW} ${imgH}" width="${imgW}" height="${imgH}" preserveAspectRatio="xMidYMid meet" fill="currentColor" role="img" aria-label="ASCII art portrait">
   ${escapedLines}
 </svg>`;
 }
@@ -202,7 +202,7 @@ function asciiToSvg(asciiText) {
  * Returns an HTML img tag for the logo image.
  * Logos are displayed as actual images, not ASCII art.
  */
-async function logoToImg(imagePath) {
+function logoToImg(imagePath) {
   const filename = basename(imagePath);
   return `<img src="./logos/${filename}" alt="${filename.replace(/\.[^.]+$/, "")} logo">`;
 }
@@ -238,12 +238,8 @@ if (existsSync(LOGOS_DIR)) {
     /\.(png|jpe?g|gif|webp|bmp)$/i.test(f)
   );
   for (const file of files) {
-    try {
-      logos[file] = await logoToImg(join(LOGOS_DIR, file));
-      console.log(`  ✓ Logo: ${file} → img tag`);
-    } catch (err) {
-      console.warn(`  ✗ Logo: ${file} failed: ${err.message}`);
-    }
+    logos[file] = logoToImg(file);
+    console.log(`  ✓ Logo: ${file} → img tag`);
   }
 }
 
