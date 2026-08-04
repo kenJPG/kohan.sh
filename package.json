@@ -11,7 +11,10 @@
     "generate": "node scripts/generate.mjs",
     "dev": "node scripts/generate.mjs && vite",
     "build": "node scripts/generate.mjs && tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "resume:build": "typst compile resume/resume.typ --input paper=a4 public/kenneth-chen-ko-han-resume.pdf && typst compile resume/resume.typ --input paper=us-letter public/kenneth-chen-ko-han-resume-letter.pdf",
+    "resume:watch": "typst watch resume/resume.typ --input paper=a4 public/kenneth-chen-ko-han-resume.pdf",
+    "resume:check": "node scripts/check-resume.mjs"
   },
   "devDependencies": {
     "sharp": "^0.34.5",
