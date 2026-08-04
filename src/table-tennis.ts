@@ -28,6 +28,7 @@ export function initTableTennis(root: HTMLElement) {
   if (!ctx) return;
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  const colorScheme = matchMedia("(prefers-color-scheme: dark)");
 
   // Live region so the score is not purely visual. Visually hidden because the
   // canvas already draws the score — this exists for screen readers only.
@@ -50,9 +51,8 @@ export function initTableTennis(root: HTMLElement) {
   let keyDir = 0;
   let lastAnnounced = "";
 
-  const css = getComputedStyle(document.documentElement);
   const token = (name: string, fallback: string) =>
-    css.getPropertyValue(name).trim() || fallback;
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 
   function reset(towardPlayer: boolean) {
     ballX = W / 2;
@@ -130,9 +130,9 @@ export function initTableTennis(root: HTMLElement) {
   }
 
   function draw() {
-    const ink = token("--ink", "#111113");
-    const muted = token("--muted", "#55575c");
-    const surface = token("--surface", "#f3f3f1");
+    const ink = token("--ink", "#174714");
+    const muted = token("--muted", "#505060");
+    const surface = token("--surface", "#ecece8");
 
     ctx!.clearRect(0, 0, W, H);
     ctx!.fillStyle = surface;
@@ -253,7 +253,11 @@ export function initTableTennis(root: HTMLElement) {
   );
   io.observe(canvas);
 
-  reduced.addEventListener("change", () => { if (reduced.matches) stop(); });
+  reduced.addEventListener("change", () => {
+    if (reduced.matches) stop();
+    draw();
+  });
+  colorScheme.addEventListener("change", draw);
 
   announce();
   draw();
