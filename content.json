@@ -1,9 +1,20 @@
 {
   "name": "Kenneth Chen Ko Han",
+  "role": "AI Engineer",
   "tagline": "Also just a passenger on this train",
   "email": "kenneth.chen1337@gmail.com",
   "location": "Singapore",
+  "resume": {
+    "href": "/kenneth-chen-ko-han-resume.pdf",
+    "label": "Resume",
+    "meta": "PDF · 1 page"
+  },
+  "portrait": {
+    "src": "me.jpg",
+    "alt": "Kenneth Chen Ko Han"
+  },
   "links": {
+    "github": "https://github.com/kenJPG",
     "linkedin": "https://linkedin.com/in/kenneth-chen-ko-han",
     "huggingface": "https://huggingface.co/qenneth"
   },

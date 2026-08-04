@@ -17,6 +17,56 @@ pnpm preview  # serve dist/
 Node 22+, pnpm 10. Both are pinned in `package.json`; there is deliberately only
 one lockfile.
 
+## Adding your photo
+
+Drop a jpg or png at the repo root named to match `content.portrait.src` in
+`content.json` (currently `me.jpg`) and rebuild. The build resizes it to a
+square WebP at 2× and emits explicit `width`/`height`, so it costs little and
+causes no layout shift.
+
+If the file is absent the build says so and the hero renders type-only — that
+is a supported state, not a broken one. There is no placeholder image.
+
+Company logos work the same way: anything in `logos/` is resized to 36px WebP at
+build time. `raid.png` was shipping 419 KB to fill an 18-pixel square; it is now
+0.8 KB. Generated images go to `public/img/`, which is gitignored — unlike the
+resume PDFs, which are committed.
+
+## Design
+
+The visual language is deliberate, and the notes are in `src/style.css`. Three
+rules, in priority order:
+
+1. **Type carries the hierarchy. Colour never does.**
+2. **Colour is reserved for action.** Exactly one thing on the page is filled
+   with `--action` blue: the resume button. If a second thing ever becomes blue,
+   the resume button stops meaning "this is the thing to click".
+3. **Every element earns its place.** No decorative dividers, no ornament.
+
+The font stack is the system UI stack, which resolves to San Francisco on Apple
+platforms and Segoe UI Variable on Windows. That is not laziness — it means zero
+font requests, zero layout shift from a webfont swap, and no borrowed
+personality from whichever face is currently fashionable. **Do not add a Google
+Fonts link.**
+
+Contrast is checked, not assumed. Every text colour clears WCAG AA against
+`--paper`: ink 18.38:1, muted 7.05:1, action 5.13:1. The previous design used
+`#999` at 2.73:1 for dates and technologies.
+
+`:focus-visible` is defined once, globally, so a new interactive element cannot
+ship without a visible focus ring.
+
+## Table tennis
+
+There is a game in the footer, in `src/table-tennis.ts`. It is dependency-free,
+lazy-loaded only when the footer is approached, and idle until then — a game
+loop running behind three screens of text is wasted battery.
+
+It honours `prefers-reduced-motion` literally: under that setting the ball never
+moves on its own, only one step per input, so nothing animates that the user did
+not ask for. It is playable by keyboard and announces the score to screen
+readers via a visually hidden live region.
+
 ## The resume
 
 > ### The published filename never changes.

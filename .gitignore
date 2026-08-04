@@ -1,2 +1,6 @@
 node_modules
 dist
+
+# Generated at build time by scripts/generate.mjs.
+# The resume PDFs elsewhere in public/ ARE committed - see README.
+public/img/
