@@ -1,57 +1,78 @@
 {
   "name": "Kenneth Chen Ko Han",
+  "greeting": "[Hi]! I'm Kenneth",
+  "role": "AI Engineer",
   "tagline": "Also just a passenger on this train",
   "email": "kenneth.chen1337@gmail.com",
   "location": "Singapore",
+  "resume": {
+    "href": "/kenneth-chen-ko-han-resume.pdf",
+    "label": "resume"
+  },
+  "photos": [
+    {
+      "src": "me.webp",
+      "alt": "Kenneth as a kid, at the ice rink"
+    }
+  ],
   "links": {
+    "github": "https://github.com/kenJPG",
     "linkedin": "https://linkedin.com/in/kenneth-chen-ko-han",
     "huggingface": "https://huggingface.co/qenneth"
   },
   "bio": "I build AI systems that ship to production — computer vision pipelines, speech recognition, voice agents. Most of my work sits at the intersection of \"make the model work\" and \"make it work reliably\"",
   "experience": [
     {
+      "company": "Makeable.build",
+      "role": "Technical Interviewer",
+      "date": "July 2026 - Present",
+      "description": "San Francisco startup backed by Afore Capital, with $250K in pre-seed funding. I designed and run the technical interview loop, assessing the engineering candidates the founders shortlist.",
+      "url": "https://makeable.build"
+    },
+    {
       "company": "Resumify",
       "logo": "resumify.png",
       "role": "AI Lead, Co-founder",
       "date": "2023 - 2026",
-      "description": "Co-founded non-profit with YellowRibbon.gov.sg, HTX, and Singapore Prison Service. AI platform helping ex-inmates craft resumes for job placement. Secured $24,100 grant from National Youth Council. Signed 12-month MOU with YellowRibbon. Featured on Zao Bao.",
-      "tech": "Next.js, LLM Agents, OpenAI API, ElevenLabs"
+      "description": "Co-founded non-profit with YellowRibbon.gov.sg, HTX, and Singapore Prison Service. AI-powered resume services now delivered to 600+ users. Collaborating with SPD (Society for the Physically Disabled); hosted a sharing session training career facilitators on using the platform. Awarded SGD 24,000 in funding by the National Youth Council. Signed 12-month MOU with YellowRibbon. Featured in The Business Times and [Lianhe Zaobao](https://www.zaobao.com.sg/realtime/singapore/story20250729-7237751).",
+      "tech": "Next.js, LLM Agents, OpenAI API, ElevenLabs, Vercel, Render, Supabase, SQL",
+      "url": "https://resumify.org"
     },
     {
-      "company": "RAiD, Republic of Singapore Air Force",
+      "company": "Republic of Singapore Air Force, RAiD",
       "logo": "raid.png",
       "role": "AI Engineer Volunteer",
-      "date": "2023 - 2026",
-      "description": "Video analytics platform for RSAF with NUS grad students and NCS engineers. Speech recognition and speaker diarization for Air Traffic Control using NVIDIA NeMo and vLLM on H200 GPUs. Finetuned canary-1b and parakeet-tdt.",
-      "tech": "NVIDIA NeMo, vLLM, PyTorch, NVIDIA H200"
+      "date": "2023 - June 2026",
+      "description": "Built the full-stack system that analyses Air Traffic Control situations: an NVIDIA NeMo speech recognition and speaker diarisation layer (finetuned parakeet-tdt, canary-1b and NGPU-LM on H200 GPUs) feeding a Qwen3 reasoning layer served with vLLM, deployed to edge devices for real-time transcription in the control room. Built an LLM-powered internal search tool at a RAiD hackathon hosted at Microsoft's office.",
+      "tech": "NVIDIA NeMo, vLLM, Qwen3, PyTorch, NVIDIA H200, Edge Deployment"
     },
     {
       "company": "Bifrost AI",
       "logo": "bifrost.jpeg",
       "role": "AI Intern",
       "date": "2024",
-      "description": "Prototyped novel data visualization method for customers like NASA, BigBear AI and DSTA using JinaCLIP. Trained YOLOv6-lite for ST Engineering's Unmanned Vehicles Team, boosting accuracy 16%+. Fine-tuned StabilityAI VAE for synthetic-to-real domain adaptation.",
+      "description": "Series A startup building synthetic data solutions for AI companies, backed by Sequoia Capital. Prototyped a zero-shot method with JinaCLIP to visualise missing data for NASA, BigBear AI and DSTA. Trained YOLOv6-lite for military tank detection with ST Engineering's Unmanned Vehicles Team; tuning for incremental learning lifted accuracy 16%+. Fine-tuned a StabilityAI VAE for synthetic-to-real domain adaptation.",
       "tech": "YOLO, VAE, JinaCLIP, OpenCV"
     },
     {
-      "company": "GovTech Singapore",
+      "company": "GovTech Singapore, Video Analytics, Data Science and AI Division",
       "logo": "govtech.png",
       "role": "AI Engineer Intern",
       "date": "2023 - 2024",
-      "description": "Red-teamed GovTech's AI Image Detector with custom-trained LoRAs. Built end-to-end CV pipeline for MSO's OneService App automating classification of thousands of daily municipal reports. Developed real-time animal welfare detection for NParks using OWLv2. Prototyped XAI tool using Few-Shot Segmentation.",
+      "description": "Red-teamed GovTech's AI Image Detector with custom-trained LoRAs. Lead AI engineer on a computer vision pipeline for MSO's OneService App on AWS (EKS, SageMaker), classifying thousands of daily municipal reports via zero-shot ensembles. Built real-time animal welfare detection for NParks with OWLv2, tuned by Bayesian optimisation (Hyperopt). Prototyped a novel object-detection explainability method using SegGPT and SAM.",
       "tech": "OWLv2, LoRA, Few-Shot Segmentation, XAI"
     }
   ],
   "research": [
     {
-      "title": "Not serious researcher",
+      "title": "Unserious research",
       "org": "2025",
-      "detail": "Holding State-of-the-Art Word Error Rate on the [ATC-ASR benchmark](https://huggingface.co/qenneth/parakeet-tdt-0.6b-v3-finetuned-for-ATC) with finetuned parakeet-tdt"
+      "detail": "State-of-the-art 5.99% Word Error Rate on the [Air Traffic Control Automatic Speech Recognition (ATC-ASR) benchmark](https://huggingface.co/qenneth/parakeet-tdt-0.6b-v3-finetuned-for-ATC), with a parakeet-tdt-0.6b-v3 finetuned in under an hour on a single H200. Peaked at 200+ downloads a month, now averaging around 70"
     },
     {
       "title": "SEA-VL Contributor",
       "org": "SEACrowd, 2025",
-      "detail": "Annotated data for ACL 2025 accepted paper on vision-language datasets"
+      "detail": "Co-author on [Crowdsource, Crawl, or Generate? Creating SEA-VL](https://aclanthology.org/2025.acl-long.916/), ACL 2025 Main Conference — annotated Myanmar-specific imagery and contributed to the writing"
     },
     {
       "title": "Founder, Competitive Programming Interest Group",
@@ -67,22 +88,23 @@
   "education": [
     {
       "school": "National University of Singapore, NUS College",
-      "date": "2026 - 2029",
+      "date": "2026 - May 2029",
       "degree": "Bachelors in Computer Science, Minor in Mathematics",
-      "awards": "NUS Merit Scholarship"
+      "awards": "NUS Merit Scholarship — awarded to high-calibre freshmen on academic results, leadership qualities and co-curricular record"
     },
     {
       "school": "Singapore Polytechnic",
       "date": "2021 - 2024",
       "degree": "Diploma in Applied AI and Analytics",
-      "awards": "CGPA 4.0/4.0 / Lee Kuan Yew Award / IMDA Gold Medal / SP Scholarship"
+      "awards": "Lee Kuan Yew Award for Mathematics & Science (top tech graduate) / IMDA Gold Medal (top all-around achiever) / SP Scholarship",
+      "gpa": "4.0 / 4.0",
+      "coursework": "Deep Learning, Machine Learning, Reinforcement Learning, Full-Stack Development, DevOps, Data Analytics, Data Engineering, Data Visualisation"
     }
   ],
   "skills": {
-    "Languages": "Python, C++, JavaScript, SQL",
-    "AI/ML": "PyTorch, OpenCV, YOLO, Grounding DINO, Transformers, NVIDIA NeMo",
-    "GenAI": "LLM Agents, LoRA, VAEs, MLOps",
-    "Web": "Next.js, React",
-    "Infra": "AWS Lambda, Docker, GCP, NVIDIA CUDA, Git, LaTeX"
+    "Languages": "Python, C++, TypeScript, JavaScript, SQL, HTML, CSS, Bash",
+    "Machine Learning": "PyTorch, Hugging Face, NVIDIA NeMo, vLLM, scikit-learn, NumPy, Pandas, OpenCV, LoRA, Hyperopt, Weights & Biases",
+    "Web & Data": "Next.js, React, FastAPI, Node.js, Tailwind CSS, MySQL, MongoDB, Supabase, OpenAI API",
+    "Cloud & Tooling": "AWS, AWS EKS, AWS SageMaker, Docker, Vercel, Render, Git, LaTeX, Typst"
   }
 }

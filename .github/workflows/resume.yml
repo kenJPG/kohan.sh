@@ -1,0 +1,77 @@
+name: Build resume PDF
+
+# The site is deployed by Cloudflare, which builds from source on push but has
+# no Typst binary. So the PDFs are compiled here and committed into public/,
+# where Vite copies them verbatim into dist/ and Cloudflare serves them as
+# ordinary static assets. Nothing in the site build depends on Typst.
+#
+# Only resume/** triggers this, and it only ever writes public/*.pdf, so the
+# bot's own commit cannot retrigger the workflow.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "resume/**"
+      - "scripts/check-resume.mjs"
+      - ".github/workflows/resume.yml"
+  pull_request:
+    paths:
+      - "resume/**"
+      - "scripts/check-resume.mjs"
+      - ".github/workflows/resume.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: resume-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: typst-community/setup-typst@v5
+        with:
+          # Match the local toolchain so CI cannot render differently to what
+          # was checked with `pnpm resume:watch`.
+          typst-version: "0.15.0"
+
+      # New Computer Modern is embedded in the Typst CLI, so no font install is
+      # needed. If the resume ever uses raw/backtick text it will silently fall
+      # back to DejaVu Sans Mono — commit the OTF to resume/fonts/ and add
+      # --font-path resume/fonts if that day comes.
+      - name: Compile A4
+        run: typst compile resume/resume.typ --input paper=a4 public/kenneth-chen-ko-han-resume.pdf
+
+      - name: Compile US Letter
+        run: typst compile resume/resume.typ --input paper=us-letter public/kenneth-chen-ko-han-resume-letter.pdf
+
+      - name: Verify both are single-page PDFs
+        run: node scripts/check-resume.mjs
+
+      - name: Upload for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: resume-pdfs
+          path: public/*.pdf
+          if-no-files-found: error
+
+      # Pull requests get the artifact and the page-count check, but must not
+      # write to the branch.
+      - name: Commit refreshed PDFs
+        if: github.event_name != 'pull_request'
+        run: |
+          if git diff --quiet -- public; then
+            echo "PDFs unchanged — nothing to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/kenneth-chen-ko-han-resume.pdf public/kenneth-chen-ko-han-resume-letter.pdf
+          git commit -m "chore(resume): rebuild PDFs [skip ci]"
+          git push

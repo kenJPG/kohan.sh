@@ -1,249 +1,27 @@
-/**
- * generate.mjs — Builds index.html from content.json + me.txt + logos/*
- *
- * Usage: node scripts/generate.mjs
- *
- * Content pipeline:
- *   content.json  →  all text content (bio, experience, skills, etc.)
- *   me.txt        →  hero ASCII face art (embedded as-is)
- *   logos/*       →  company logo images (displayed as-is)
- *
- * To add/update content:  edit content.json
- * To change your face:    edit me.txt (paste your ASCII art there)
- * To add a company logo:  drop an image in logos/ named to match the "logo" field
- *                         in content.json (e.g. "resumify.png")
- */
+import { readFileSync, writeFileSync, copyFileSync, existsSync, readdirSync, mkdirSync, statSync } from "fs";
+import { resolve, join, basename, extname } from "path";
 
-import { readFileSync, writeFileSync, existsSync, readdirSync } from "fs";
-import { resolve, join, basename } from "path";
-import sharp from "sharp";
+// sharp ships prebuilt per-platform binaries. This repo gets run from both
+// Windows and WSL against the same node_modules on /mnt/c, so whichever OS
+// installed last is the only one that can load it. Logo optimisation is a
+// nice-to-have, not a reason to block the dev server - fall back to copying
+// the originals through unresized.
+let sharp = null;
+try {
+  ({ default: sharp } = await import("sharp"));
+} catch (error) {
+  console.warn(`  ! sharp unavailable (${error.code ?? "load failed"}) - copying logos unoptimised.`);
+  console.warn(`    To fix: pnpm install (from this OS), or see supportedArchitectures in package.json.`);
+}
 
 const ROOT = resolve(import.meta.dirname, "..");
 const CONTENT_PATH = join(ROOT, "content.json");
-const ME_PATH = join(ROOT, "me.txt");
 const LOGOS_DIR = join(ROOT, "logos");
+const PUBLIC_DIR = join(ROOT, "public");
+const IMG_DIR = join(PUBLIC_DIR, "img");
 const OUT_PATH = join(ROOT, "index.html");
 
-// ── ASCII art conversion ─────────────────────────────────────────────
-// Block-style density ramp: fewer chars = cleaner shading, more artistic look.
-// Dark → light. Chosen for good visual weight distribution in monospace.
-const DENSITY = "&$Xx+;:. ";
-
-// Aspect ratio correction: monospace chars are ~2x taller than wide.
-const CHAR_ASPECT = 0.45;
-
-// ── Contrast enhancement ─────────────────────────────────────────────
-
-/**
- * Auto-contrast: stretch the pixel range so darkest → 0 and lightest → 255,
- * then apply a sigmoidal curve to push midtones toward the extremes.
- * This makes logos with pale backgrounds much more punchy.
- *
- * @param {Uint8Array} pixels  – mutable grayscale pixel buffer
- * @param {number} strength    – sigmoidal contrast (0 = off, 10 = extreme). Default 6.
- */
-function enhanceContrast(pixels, strength = 6) {
-  // 1. Find actual min/max, ignoring pure white padding
-  let min = 255, max = 0;
-  for (let i = 0; i < pixels.length; i++) {
-    if (pixels[i] < min) min = pixels[i];
-    if (pixels[i] > max) max = pixels[i];
-  }
-  if (max === min) return; // flat image, nothing to do
-
-  // 2. Linear stretch to full 0-255 range
-  const range = max - min;
-  for (let i = 0; i < pixels.length; i++) {
-    pixels[i] = Math.round(((pixels[i] - min) / range) * 255);
-  }
-
-  // 3. Sigmoidal contrast — S-curve that darkens darks and brightens brights
-  if (strength > 0) {
-    const a = strength;
-    // Precompute LUT for speed
-    const lut = new Uint8Array(256);
-    const sig = (x) => 1 / (1 + Math.exp(-a * (x - 0.5)));
-    const s0 = sig(0); // sigmoid at input 0
-    const s1 = sig(1); // sigmoid at input 1
-    for (let v = 0; v < 256; v++) {
-      const t = v / 255;                              // normalise to 0..1
-      const s = sig(t);                               // apply sigmoid
-      const norm = (s - s0) / (s1 - s0);              // normalise back to 0..1
-      lut[v] = Math.round(Math.min(255, Math.max(0, norm * 255)));
-    }
-    for (let i = 0; i < pixels.length; i++) {
-      pixels[i] = lut[pixels[i]];
-    }
-  }
-}
-
-// ── Atkinson dithering ───────────────────────────────────────────────
-
-/**
- * Atkinson dithering — spreads only 6/8 of the quantisation error, which
- * intentionally "loses" some, producing crisper output with more defined
- * edges than Floyd-Steinberg. Ideal for ASCII art where we have very few
- * output levels.
- *
- * Modifies `pixels` in place.  w × h grayscale buffer.
- * `levels` is the number of output levels (= DENSITY.length).
- */
-function atkinsonDither(pixels, w, h, levels) {
-  // Work in floats for accuracy
-  const buf = new Float32Array(pixels.length);
-  for (let i = 0; i < pixels.length; i++) buf[i] = pixels[i];
-
-  const step = 255 / (levels - 1);
-
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const i = y * w + x;
-      const old = buf[i];
-      const quantised = Math.round(old / step) * step;
-      buf[i] = quantised;
-      const err = (old - quantised) / 8; // Atkinson divides by 8
-
-      // Spread 6/8 of error to 6 neighbours (1/8 each)
-      if (x + 1 < w)                     buf[i + 1]     += err;
-      if (x + 2 < w)                     buf[i + 2]     += err;
-      if (y + 1 < h) {
-        if (x - 1 >= 0)                  buf[i + w - 1] += err;
-                                          buf[i + w]     += err;
-        if (x + 1 < w)                   buf[i + w + 1] += err;
-      }
-      if (y + 2 < h)                     buf[i + 2 * w] += err;
-    }
-  }
-
-  // Write back clamped
-  for (let i = 0; i < pixels.length; i++) {
-    pixels[i] = Math.round(Math.min(255, Math.max(0, buf[i])));
-  }
-}
-
-// ── Pixel buffer → ASCII string ──────────────────────────────────────
-
-function pixelsToAscii(pixels, w, h) {
-  const rampLen = DENSITY.length - 1;
-  let ascii = "";
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const brightness = pixels[y * w + x];
-      const idx = Math.round((brightness / 255) * rampLen);
-      ascii += DENSITY[idx];
-    }
-    ascii += "\n";
-  }
-  return ascii.trimEnd();
-}
-
-// ── Public conversion functions ──────────────────────────────────────
-
-/**
- * Convert an image to ASCII art with contrast enhancement + Atkinson dithering.
- */
-async function imageToAscii(
-  imagePath,
-  { width = 60, contrast = 6, background = [255, 255, 255] } = {}
-) {
-  const meta = await sharp(imagePath).metadata();
-  const aspectRatio = meta.height / meta.width;
-  const height = Math.round(width * aspectRatio * CHAR_ASPECT);
-
-  const bg = { r: background[0], g: background[1], b: background[2] };
-
-  const { data } = await sharp(imagePath)
-    .flatten({ background: bg })
-    .grayscale()
-    .resize(width, height, { fit: "fill", kernel: "lanczos3" })
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-
-  const pixels = new Uint8Array(data);
-  enhanceContrast(pixels, contrast);
-  atkinsonDither(pixels, width, height, DENSITY.length);
-
-  return pixelsToAscii(pixels, width, height);
-}
-
-// ── ASCII art → inline SVG for mobile ────────────────────────────────
-
-/**
- * Build an inline SVG string from ASCII art text.
- * Uses currentColor so it inherits from CSS and adapts to dark mode.
- * This is needed because mobile browsers enforce minimum font sizes,
- * making sub-pixel ASCII art invisible.
- */
-function asciiToSvg(asciiText) {
-  const lines = asciiText.split("\n");
-  const rows = lines.length;
-  const cols = Math.max(...lines.map((l) => l.length));
-
-  const charH = 6.3;
-  const charW = charH * 0.6;
-  const imgW = Math.ceil(cols * charW);
-  const imgH = Math.ceil(rows * charH);
-
-  const escapedLines = lines
-    .map(
-      (line, i) =>
-        `<text x="0" y="${(i + 1) * charH}" font-family="'Courier New', monospace" font-size="${charH}px" xml:space="preserve">${line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</text>`
-    )
-    .join("\n");
-
-  return `<svg class="me-img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${imgW} ${imgH}" width="${imgW}" height="${imgH}" preserveAspectRatio="xMidYMid meet" fill="currentColor" role="img" aria-label="ASCII art portrait">
-  ${escapedLines}
-</svg>`;
-}
-
-// ── Logo image function ─────────────────────────────────────────────
-
-/**
- * Returns an HTML img tag for the logo image.
- * Logos are displayed as actual images, not ASCII art.
- */
-function logoToImg(imagePath) {
-  const filename = basename(imagePath);
-  return `<img src="./logos/${filename}" alt="${filename.replace(/\.[^.]+$/, "")} logo">`;
-}
-
-// ── Content loading ──────────────────────────────────────────────────
-
 const content = JSON.parse(readFileSync(CONTENT_PATH, "utf-8"));
-
-// Load me.txt (or convert me.png if no .txt exists)
-const ME_PNG_PATH = join(ROOT, "me.png");
-let meAscii = "";
-if (existsSync(ME_PATH)) {
-  meAscii = readFileSync(ME_PATH, "utf-8").trimEnd();
-  console.log(`  ✓ Face: me.txt (${meAscii.split("\n").length} lines)`);
-} else if (existsSync(ME_PNG_PATH)) {
-  meAscii = await imageToAscii(ME_PNG_PATH, { width: 350 });
-  console.log(`  ✓ Face: me.png → ASCII (${meAscii.split("\n").length} lines)`);
-} else {
-  console.warn("  ✗ No me.txt or me.png found — hero section will be empty");
-}
-
-// Generate inline SVG for mobile
-let meSvg = "";
-if (meAscii) {
-  meSvg = asciiToSvg(meAscii);
-  console.log(`  ✓ Face SVG: inline (${meSvg.length} chars)`);
-}
-
-// Load and convert logos to img tags
-const logos = {};
-if (existsSync(LOGOS_DIR)) {
-  const files = readdirSync(LOGOS_DIR).filter((f) =>
-    /\.(png|jpe?g|gif|webp|bmp)$/i.test(f)
-  );
-  for (const file of files) {
-    logos[file] = logoToImg(file);
-    console.log(`  ✓ Logo: ${file} → img tag`);
-  }
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────
 
 function esc(str) {
   if (str == null) return "";
@@ -254,127 +32,268 @@ function esc(str) {
     .replace(/"/g, "&quot;");
 }
 
-/** Convert markdown-style [text](url) links in a string to <a> tags */
+function normalizeHeroBio(str) {
+  if (str == null) return "";
+  return String(str).replace(/—/g, "-");
+}
+
 function linkify(str) {
   if (str == null) return "";
   return esc(str).replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
-    '<a href="$2">$1</a>'
+    '<a href="$2" rel="noreferrer">$1</a>'
   );
 }
 
-// ── HTML generation ──────────────────────────────────────────────────
-
-function renderExperience(exp) {
-  const hasLogo = exp.logo && logos[exp.logo];
-  const companyHtml = hasLogo
-    ? `    <div class="logo-company">${logos[exp.logo]} <span>${esc(exp.company)}</span></div>`
-    : `    <div class="logo-company"><span>${esc(exp.company)}</span></div>`;
-
-  return `<div class="entry">
-    <div class="entry-header">
-        <span class="job-title"><strong>${esc(exp.role)}</strong></span>
-        <span class="dim">${esc(exp.date)}</span>
-    </div>
-${companyHtml}
-    <p class="indent">${linkify(exp.description)}</p>
-    <p class="indent tech">${esc(exp.tech)}</p>
-</div>`;
+function range(str) {
+  return esc(str).replace(/\s*-\s*/g, "–");
 }
 
-function renderResearch(r) {
-  return `<div class="entry">
-    <div class="entry-header">
-        <span><strong>${esc(r.title)}</strong></span>
-        <span class="dim">${esc(r.org)}</span>
-    </div>
-    <p class="indent dim">${linkify(r.detail)}</p>
-</div>`;
+function items(str) {
+  return String(str ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
-function renderEducation(edu) {
-  return `<div class="entry edu">
-    <div class="entry-header">
-        <span><strong>${esc(edu.school)}</strong></span>
-        <span class="dim">${esc(edu.date)}</span>
-    </div>
-    <p class="indent">${esc(edu.degree)}</p>
-    <p class="indent dim">${esc(edu.awards)}</p>
-</div>`;
+const LOGO_PX = 18;
+
+// ── Command block ─────────────────────────────────────────────────────────
+// A hand-placed asset, not a generated one, so it lives at public/ root
+// rather than public/img/ - that directory is gitignored as build output and
+// anything dropped in it would never reach the deployed site.
+//
+// No loading="lazy": it sits inside the first viewport, at the foot of the
+// hero, so deferring it would only make it pop in late.
+//
+// Both files are true 16x16 - the browser only ever scales UP, which
+// `image-rendering: pixelated` keeps crisp. Downscaling pixel art to an
+// arbitrary height drops rows unevenly and looks ragged.
+const COMMAND_BLOCK_SRC = "/command-block.gif";
+const COMMAND_BLOCK_STILL = "/command-block.png";
+
+// ── Block textures ────────────────────────────────────────────────────────
+// Real Minecraft assets, committed under public/textures/ rather than
+// generated: mirrored from InventivetalentDev/minecraft-assets (1.20.1).
+// They are Mojang's textures, used here as fan art.
+//
+// The directory is the source of truth - drop a 16x16 png in and it joins the
+// rotation, no code change. destroy_stage_N are the game's own break overlay
+// frames, so the fracture is the real animation rather than an imitation.
+
+const TEXTURE_DIR = join(PUBLIC_DIR, "textures");
+
+function readTextures() {
+  if (!existsSync(TEXTURE_DIR)) return { names: [], cracks: [] };
+
+  const files = readdirSync(TEXTURE_DIR).filter((f) => f.endsWith(".png"));
+
+  const names = files
+    .filter((f) => !f.startsWith("destroy_stage_"))
+    .sort()
+    .map((f) => `/textures/${f}`);
+
+  const cracks = files
+    .filter((f) => f.startsWith("destroy_stage_"))
+    .sort((a, b) => Number(a.match(/\d+/)[0]) - Number(b.match(/\d+/)[0]))
+    .map((f) => `/textures/${f}`);
+
+  console.log(`  ✓ Textures: ${names.length} blocks, ${cracks.length} break frames`);
+  return { names, cracks };
 }
+
+const textures = readTextures();
+
+/**
+ * Renders the greeting, turning a [bracketed] run into the block. Only that
+ * run gets a texture - "Hi" is near enough to square that one 16x16 tile maps
+ * onto it as a single block, which is the whole idea; stretching one tile
+ * across "Hi! I'm Kenneth" would just smear it.
+ */
+function renderGreeting(text) {
+  const match = String(text ?? "").match(/^(.*?)\[([^\]]+)\](.*)$/);
+  if (!match || textures.names.length === 0) {
+    return esc(String(text ?? "").replace(/[[\]]/g, ""));
+  }
+
+  const [, before, word, after] = match;
+  return (
+    esc(before) +
+    `<span class="brk" data-textures="${esc(textures.names.join(","))}"` +
+    ` data-cracks="${esc(textures.cracks.join(","))}"` +
+    ` style="--tex: url('${esc(textures.names[0])}')">${esc(word)}</span>` +
+    esc(after)
+  );
+}
+
+// The animated front face, built from Minecraft's own command_block_front
+// sprite strip (16x64, four keyframes) with the tweens its .mcmeta asks for
+// (frametime 10 ticks, interpolate true) baked in - a 2s loop, same as the
+// game. See the note by COMMAND_BLOCK_SRC for why it is a gif.
+//
+// <picture> serves the static first frame under prefers-reduced-motion: a gif
+// animates regardless of CSS, so it is the only way to actually honour that.
+const commandBlockMarkup = `<picture>
+          <source srcset="${COMMAND_BLOCK_STILL}" media="(prefers-reduced-motion: reduce)">
+          <img class="block" src="${COMMAND_BLOCK_SRC}" alt="" width="16" height="16" decoding="async">
+        </picture>`;
+
+async function buildLogos() {
+  const map = new Map();
+  if (!existsSync(LOGOS_DIR)) return map;
+
+  mkdirSync(join(IMG_DIR, "logos"), { recursive: true });
+
+  const files = readdirSync(LOGOS_DIR).filter((f) => /\.(png|jpe?g|gif|webp)$/i.test(f));
+
+  for (const file of files) {
+    const name = basename(file, extname(file));
+    const before = statSync(join(LOGOS_DIR, file)).size;
+
+    if (!sharp) {
+      copyFileSync(join(LOGOS_DIR, file), join(IMG_DIR, "logos", file));
+      map.set(file, `/img/logos/${file}`);
+      console.log(`  · Logo: ${file} copied as-is (${(before / 1024).toFixed(1)} KB)`);
+      continue;
+    }
+
+    const outName = `${name}.webp`;
+    const info = await sharp(join(LOGOS_DIR, file))
+      .resize(LOGO_PX * 2, LOGO_PX * 2, { fit: "contain", background: { r: 255, g: 255, b: 255, alpha: 0 } })
+      .webp({ quality: 88 })
+      .toFile(join(IMG_DIR, "logos", outName));
+
+    map.set(file, `/img/logos/${outName}`);
+    console.log(
+      `  ✓ Logo: ${file} ${(before / 1024).toFixed(1)} KB → ${(info.size / 1024).toFixed(1)} KB`
+    );
+  }
+
+  return map;
+}
+
+const logos = await buildLogos();
+
+function entry({ date, title, source, sourceLogo, sourceUrl, body, meta, gpa }) {
+  const logo = sourceLogo && logos.has(sourceLogo)
+    ? `<img class="entry__logo" src="${esc(logos.get(sourceLogo))}" alt="" width="18" height="18" loading="lazy">`
+    : "";
+  const sourceMarkup = sourceUrl
+    ? `<a class="entry__org" href="${esc(sourceUrl)}" rel="noreferrer">${esc(source)}</a>`
+    : `<span>${esc(source)}</span>`;
+
+  return `<article class="entry">
+  <div class="entry__date">${range(date)}</div>
+  <div class="entry__main">
+    <h3 class="entry__title">${esc(title)}</h3>
+    ${source ? `<p class="entry__source">${logo}${sourceMarkup}</p>` : ""}
+    ${gpa ? `<p class="entry__gpa">GPA ${esc(gpa)}</p>` : ""}
+    ${body ? `<p class="entry__body">${linkify(body)}</p>` : ""}
+    ${meta ? `<ul class="tags">${items(meta).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
+  </div>
+</article>`;
+}
+
+const renderExperience = (e) =>
+  entry({ date: e.date, title: e.role, source: e.company, sourceLogo: e.logo, sourceUrl: e.url, body: e.description, meta: e.tech });
+
+const renderResearch = (r) =>
+  entry({ date: r.org, title: r.title, body: r.detail });
+
+const renderEducation = (e) =>
+  entry({ date: e.date, title: e.school, source: e.degree, body: e.awards, gpa: e.gpa, meta: e.coursework });
 
 function renderSkills(skills) {
   return Object.entries(skills)
     .map(
-      ([label, value]) =>
-        `    <tr><td class="label">${esc(label)}</td><td>${esc(value)}</td></tr>`
+      ([label, value]) => `<div class="skill">
+    <dt>${esc(label)}</dt>
+    <dd><ul class="tags">${items(value).map((t) => `<li>${esc(t)}</li>`).join("")}</ul></dd>
+  </div>`
     )
-    .join("\n");
+    .join("\n  ");
 }
 
-function renderLinks(links) {
+function renderLinks(links = {}) {
   return Object.entries(links)
-    .map(([name, url]) => `<a href="${url}">${esc(name)}</a>`)
-    .join(" / ");
+    .map(([name, url]) => `<a class="link" href="${esc(url)}" rel="noreferrer">${esc(name)}</a>`)
+    .join("\n      ");
 }
 
-// ── Assemble page ────────────────────────────────────────────────────
+function renderPhotos(photos = []) {
+  return photos
+    .filter((photo) => typeof photo?.src === "string" && photo.src.trim())
+    .map((photo) => {
+      const src = `/portraits/${basename(photo.src.trim())}`;
+      const alt = photo.alt ?? content.name;
+      return `<img src="${esc(src)}" alt="${esc(alt)}" width="480" height="600" loading="lazy">`;
+    })
+    .join("\n        ");
+}
+
+function section(id, title, body) {
+  return `<section class="section" aria-labelledby="${id}">
+  <h2 class="section__title" id="${id}">${esc(title)}</h2>
+  <div class="section__body">
+    ${body}
+  </div>
+</section>`;
+}
+
+const resume = content.resume;
+const role = content.role ?? "";
+const description = [content.name, role, content.location].filter(Boolean).join(" · ");
 
 const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="${esc(content.name)} - Machine Learning Engineer">
-    <title>${esc(content.name)}</title>
-    <link rel="stylesheet" href="./src/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="${esc(description)}">
+  <title>${esc(content.name)}${role ? ` · ${esc(role)}` : ""}</title>
+  <link rel="canonical" href="https://kohan.sh/">
 </head>
 <body>
-<div id="page">
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="page">
+    <header class="hero">
+      <div class="hero__photos">
+        ${renderPhotos(content.photos)}
+      </div>
+      <div class="hero__title">
+        <h1 class="hero__name">${renderGreeting(content.greeting ?? content.name)}</h1>
+      </div>
+      <p class="hero__role">${esc([content.location, role].filter(Boolean).join(" · "))}</p>
+      <p class="hero__bio">${linkify(normalizeHeroBio(content.bio))}.</p>
+      <nav class="actions" aria-label="Contact and documents">
+        ${
+          resume
+            ? `<a class="button" href="${esc(resume.href)}" target="_blank" rel="noreferrer">${esc(resume.label)}</a>`
+            : ""
+        }
+        <div class="actions__links">
+          <a class="link" href="mailto:${esc(content.email)}">email</a>
+          ${renderLinks(content.links)}
+        </div>
+      </nav>
+      <div class="hero__block" aria-hidden="true">
+        ${commandBlockMarkup}
+      </div>
+    </header>
 
-<pre class="me" id="asciiMe">
-${esc(meAscii)}
-</pre>
-${meSvg}
+    <main id="main">
+      ${section("experience", "Experience", content.experience.map(renderExperience).join("\n"))}
+      ${section("research", "Research & Community", content.research.map(renderResearch).join("\n"))}
+      ${section("education", "Education", content.education.map(renderEducation).join("\n"))}
+      ${section("skills", "Skills", `<dl class="skills">\n  ${renderSkills(content.skills)}\n</dl>`)}
+    </main>
 
-<h1>${esc(content.name)}</h1>
-<p class="dim">${esc(content.tagline)}</p>
+    <footer class="footer">
+      <p class="footer__note">${esc(content.name)} · ${esc(content.location)}</p>
+    </footer>
+  </div>
 
-<p class="dim">${esc(content.email)} / ${renderLinks(content.links)}</p>
-
-<p>
-${linkify(content.bio)}
-</p>
-
-<hr>
-
-<h2>Experience</h2>
-
-${content.experience.map(renderExperience).join("\n\n")}
-
-<hr>
-
-<h2>Research &amp; Community</h2>
-
-${content.research.map(renderResearch).join("\n\n")}
-
-<hr>
-
-<h2>Education</h2>
-
-${content.education.map(renderEducation).join("\n\n")}
-
-<hr>
-
-<h2>Skills</h2>
-
-<table>
-${renderSkills(content.skills)}
-</table>
-
-</div>
-
-<script type="module" src="./src/main.ts"></script>
+  <script type="module" src="./src/main.ts"></script>
 </body>
 </html>
 `;

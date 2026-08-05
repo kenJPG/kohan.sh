@@ -1,0 +1,17 @@
+# Cloudflare _redirects. Copied verbatim into dist/ by Vite.
+#
+# Without these, /resume (no trailing slash) falls through to the SPA-style
+# not-found handler and silently serves the homepage instead of the resume —
+# verified locally, and this host returns 200 text/html for unknown paths
+# rather than a 404, so the failure is invisible.
+#
+# 302 rather than 301 on purpose: the PDF URL is permanent, but this redirect
+# is an alias and a 301 would be cached in browsers effectively forever.
+#
+# public/resume/index.html stays as a meta-refresh fallback in case this file
+# is ever not honoured.
+
+/resume    /kenneth-chen-ko-han-resume.pdf    302
+/resume/   /kenneth-chen-ko-han-resume.pdf    302
+/cv        /kenneth-chen-ko-han-resume.pdf    302
+/cv/       /kenneth-chen-ko-han-resume.pdf    302
