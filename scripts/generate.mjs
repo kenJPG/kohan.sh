@@ -220,31 +220,32 @@ const html = `<!DOCTYPE html>
         <p class="hero__eyebrow">${esc([content.location, role].filter(Boolean).join(" · "))}</p>
         <h1 class="hero__name">${esc(content.name)}</h1>
         <p class="hero__tagline">${esc(content.tagline)}</p>
-        <p class="hero__bio">${linkify(content.bio)}.</p>
       </div>
       ${
         portrait
           ? `<img class="hero__portrait" src="${esc(portrait.src)}" alt="${esc(portrait.alt)}" width="${portrait.width}" height="${portrait.height}" fetchpriority="high">`
           : ""
       }
+      <nav class="actions" aria-label="Contact and documents">
+        ${
+          resume
+            ? `<a class="button" href="${esc(resume.href)}" data-open-resume>
+          <span>${esc(resume.label)}</span>
+          <span class="button__meta">${esc(resume.meta)}</span>
+        </a>`
+            : ""
+        }
+        <div class="actions__links">
+          <a class="link" href="mailto:${esc(content.email)}">email</a>
+          ${renderLinks(content.links)}
+        </div>
+      </nav>
     </header>
 
-    <nav class="actions" aria-label="Contact and documents">
-      ${
-        resume
-          ? `<a class="button" href="${esc(resume.href)}" download>
-        <span>${esc(resume.label)}</span>
-        <span class="button__meta">${esc(resume.meta)}</span>
-      </a>`
-          : ""
-      }
-      <div class="actions__links">
-        <a class="link" href="mailto:${esc(content.email)}">email</a>
-        ${renderLinks(content.links)}
-      </div>
-    </nav>
+    <div class="page-main">
+      <p class="intro">${linkify(content.bio)}.</p>
 
-    <main id="main">
+      <main id="main">
       ${section("experience", "Experience", content.experience.map(renderExperience).join("\n"))}
       ${section("research", "Research & Community", content.research.map(renderResearch).join("\n"))}
       ${section("education", "Education", content.education.map(renderEducation).join("\n"))}
@@ -265,7 +266,16 @@ const html = `<!DOCTYPE html>
       </div>
       <p class="footer__note">${esc(content.name)} · ${esc(content.location)}</p>
     </footer>
+    </div>
   </div>
+
+  ${
+    resume
+      ? `<dialog class="resume-dialog">
+    <iframe src="${esc(resume.href)}" title="Resume" loading="lazy"></iframe>
+  </dialog>`
+      : ""
+  }
 
   <script type="module" src="./src/main.ts"></script>
 </body>

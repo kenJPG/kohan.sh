@@ -41,6 +41,24 @@ if (!prefersReducedMotion.matches) {
   revealables.forEach((element) => revealObserver.observe(element));
 }
 
+// Resume viewer: intercept the resume link and show the PDF in the in-page
+// dialog instead of downloading it. Esc and a backdrop click both close it
+// (Esc is native <dialog> behaviour). Without JavaScript the link still
+// opens the PDF directly in the browser's own viewer.
+const resumeTrigger = document.querySelector<HTMLAnchorElement>('[data-open-resume]');
+const resumeDialog = document.querySelector<HTMLDialogElement>('.resume-dialog');
+
+if (resumeTrigger && resumeDialog) {
+  resumeTrigger.addEventListener('click', (event) => {
+    event.preventDefault();
+    resumeDialog.showModal();
+  });
+
+  resumeDialog.addEventListener('click', (event) => {
+    if (event.target === resumeDialog) resumeDialog.close();
+  });
+}
+
 // The game is the only JavaScript on the page, and it is not needed to read
 // anything. Loaded lazily and only once the footer is approached, so it costs
 // nothing on first paint.

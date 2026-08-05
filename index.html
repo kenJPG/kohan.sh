@@ -15,25 +15,26 @@
         <p class="hero__eyebrow">Singapore · AI Engineer</p>
         <h1 class="hero__name">Kenneth Chen Ko Han</h1>
         <p class="hero__tagline">Also just a passenger on this train</p>
-        <p class="hero__bio">I build AI systems that ship to production — computer vision pipelines, speech recognition, voice agents. Most of my work sits at the intersection of &quot;make the model work&quot; and &quot;make it work reliably&quot;.</p>
       </div>
       
-    </header>
-
-    <nav class="actions" aria-label="Contact and documents">
-      <a class="button" href="/kenneth-chen-ko-han-resume.pdf" download>
-        <span>Resume</span>
-        <span class="button__meta">PDF · 1 page</span>
-      </a>
-      <div class="actions__links">
-        <a class="link" href="mailto:kenneth.chen1337@gmail.com">email</a>
-        <a class="link" href="https://github.com/kenJPG" rel="noreferrer">github</a>
+      <nav class="actions" aria-label="Contact and documents">
+        <a class="button" href="/kenneth-chen-ko-han-resume.pdf" data-open-resume>
+          <span>Resume</span>
+          <span class="button__meta">PDF · 1 page</span>
+        </a>
+        <div class="actions__links">
+          <a class="link" href="mailto:kenneth.chen1337@gmail.com">email</a>
+          <a class="link" href="https://github.com/kenJPG" rel="noreferrer">github</a>
       <a class="link" href="https://linkedin.com/in/kenneth-chen-ko-han" rel="noreferrer">linkedin</a>
       <a class="link" href="https://huggingface.co/qenneth" rel="noreferrer">huggingface</a>
-      </div>
-    </nav>
+        </div>
+      </nav>
+    </header>
 
-    <main id="main">
+    <div class="page-main">
+      <p class="intro">I build AI systems that ship to production — computer vision pipelines, speech recognition, voice agents. Most of my work sits at the intersection of &quot;make the model work&quot; and &quot;make it work reliably&quot;.</p>
+
+      <main id="main">
       <section class="section" aria-labelledby="experience">
   <h2 class="section__title" id="experience">Experience</h2>
   <div class="section__body">
@@ -182,7 +183,12 @@
       </div>
       <p class="footer__note">Kenneth Chen Ko Han · Singapore</p>
     </footer>
+    </div>
   </div>
+
+  <dialog class="resume-dialog">
+    <iframe src="/kenneth-chen-ko-han-resume.pdf" title="Resume" loading="lazy"></iframe>
+  </dialog>
 
   <script type="module" src="./src/main.ts"></script>
 </body>
