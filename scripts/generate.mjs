@@ -117,11 +117,22 @@ function renderGreeting(text) {
   }
 
   const [, before, word, after] = match;
+
+  // The first texture is inlined as a data URI rather than referenced by path.
+  // It is painted the instant the element is styled, and `url()` inside a CSS
+  // custom property is invisible to the preload scanner - so a path would not
+  // even start downloading until styles are computed, by which point
+  // `color: transparent` has already applied and the word has gone blank.
+  // Inlining removes the request entirely. It costs ~350 bytes; the visible
+  // flash of missing text is worth more than that.
+  const first = join(TEXTURE_DIR, basename(textures.names[0]));
+  const inlined = `data:image/png;base64,${readFileSync(first).toString("base64")}`;
+
   return (
     esc(before) +
     `<span class="brk" data-textures="${esc(textures.names.join(","))}"` +
     ` data-cracks="${esc(textures.cracks.join(","))}"` +
-    ` style="--tex: url('${esc(textures.names[0])}')">${esc(word)}</span>` +
+    ` style="--tex: url('${inlined}')">${esc(word)}</span>` +
     esc(after)
   );
 }

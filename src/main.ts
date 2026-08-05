@@ -119,7 +119,25 @@ function setupBlockBreak(): void {
     name!.style.setProperty('--crack', 'none');
   }
 
-  void palette(textures[0]);
+  // Warm every texture and break frame once the page is idle. Without this the
+  // first break stutters: ten destroy_stage frames at 45ms apart would each be
+  // requested the moment they are first assigned, so the early frames show
+  // nothing. They are ~150 bytes each - the cost is round trips, not bytes.
+  function warm(): void {
+    for (const src of [...textures.slice(1), ...cracks]) {
+      const image = new Image();
+      image.decoding = 'async';
+      image.src = src;
+    }
+    void palette(textures[0]);
+  }
+
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(warm, { timeout: 2000 });
+  } else {
+    setTimeout(warm, 300);
+  }
+
   setInterval(() => void cycle(), HOLD_MS + cracks.length * CRACK_STEP_MS);
 }
 
