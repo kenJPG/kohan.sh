@@ -121,13 +121,34 @@
 - San Francisco startup backed by Afore Capital, with \$250K in pre-seed funding.
 - Designed and run the technical interview loop, assessing the engineering candidates the founders shortlist.
 
+// Under Work Experience, not Projects. ATS parsers build employment history
+// from this section and either drop a Projects entry or file it somewhere the
+// company's portal never reads, so a co-founded org with a title, dates and a
+// funded track record was being thrown away at exactly the moment it counted.
+// `company` is kept plain - the resumify.org link rides in the first bullet
+// rather than in the company field, where a parenthetical would end up inside
+// the parsed employer name.
 #work(
-  company: "Republic of Singapore Air Force, RAiD",
+  company: "Resumify",
+  title: "Co-founder and AI Lead",
+  location: "Singapore",
+  dates: dates-helper(start-date: "Nov 2023", end-date: "Present"),
+)
+- Non-profit built with YellowRibbon.gov.sg, HTX and the Singapore Prison Service (#link("https://resumify.org")[resumify.org]); AI-powered resume services now delivered to 600+ users.
+- Awarded SGD 24,000 in funding by the National Youth Council; signed a 12-month MOU with YellowRibbon; featured in The Business Times and #link("https://www.zaobao.com.sg/realtime/singapore/story20250729-7237751")[Lianhe Zaobao].
+- Collaborating with SPD (Society for the Physically Disabled); hosted a sharing session to train career facilitators on using the platform.
+- Stack: Next.js, LLM agents, OpenAI API, ElevenLabs, Vercel, Render, Supabase, SQL. Developed with agentic tooling: OpenCode, Ralph loop, oh-my-openagent and Semble Search.
+
+#work(
+  // Parenthesised, not comma-separated: parsers commonly split an employer
+  // field on the comma, which would drop "RAiD" entirely. Inside brackets it
+  // survives as part of the one company string.
+  company: "Republic of Singapore Air Force (RAiD)",
   title: "AI Engineer (Volunteer)",
   location: "Singapore",
   dates: dates-helper(start-date: "Oct 2023", end-date: "Jun 2026"),
 )
-- Built the full-stack system that analyses Air Traffic Control situations: an NVIDIA NeMo speech recognition and speaker diarisation layer (fine-tuned parakeet-tdt, canary-1b and NGPU-LM on H200 GPUs) feeding a Qwen3 reasoning layer served with vLLM.
+- Built the full-stack system that analyses Air Traffic Control situations: an NVIDIA NeMo speech recognition and speaker diarisation layer (fine-tuned parakeet-tdt, canary-1b and NGPU-LM) feeding a Qwen3 reasoning layer served with vLLM.
 - Deployed it to edge devices for real-time transcription in the control room; presented to the Chief of Air Force.
 - Built an LLM-powered internal search tool at a RAiD hackathon hosted at Microsoft's office.
 
@@ -142,28 +163,22 @@
 - Fine-tuned a StabilityAI VAE to improve text and high-frequency reconstruction for synthetic-to-real domain adaptation.
 - Prototyped a zero-shot method with JinaCLIP to visualise missing data for NASA, BigBear AI and DSTA.
 
+// Employer field kept to the company alone - three comma-separated parts read
+// as one employer name to a human, but a parser splitting on commas produces
+// nonsense. The team sits in a bullet, the same way the company-context lines
+// work for Makeable and Bifrost.
 #work(
-  company: "GovTech Singapore, Video Analytics, Data Science and AI Division",
+  company: "GovTech Singapore",
   title: "AI Engineer Intern",
   location: "Singapore",
   dates: dates-helper(start-date: "Apr 2023", end-date: "Mar 2024"),
 )
-- Lead AI engineer on a computer vision pipeline for MSO's OneService App on AWS (EKS, SageMaker), classifying thousands of daily municipal reports via zero-shot ensembles.
+- Video Analytics team, Data Science and AI Division. Lead AI engineer on a computer vision pipeline for MSO's OneService App on AWS (EKS, SageMaker), classifying thousands of daily municipal reports via zero-shot ensembles.
 - Built real-time animal welfare detection for NParks with OWLv2, tuned by Bayesian optimisation (Hyperopt); the pitch secured executive-board funding.
 - Red-teamed GovTech's AI Image Detector with custom-trained LoRAs simulating locally contextualised deepfakes.
 - Prototyped a novel feature-explainability method for object detection using SegGPT and SAM.
 
 == Projects
-
-#project(
-  name: "Resumify",
-  url: "resumify.org",
-  dates: dates-helper(start-date: "Nov 2023", end-date: "Present"),
-)
-- Co-founder and AI Lead of a non-profit with YellowRibbon.gov.sg, HTX and the Singapore Prison Service; AI-powered resume services now delivered to 600+ users.
-- Awarded SGD 24,000 in funding by the National Youth Council; signed a 12-month MOU with YellowRibbon; featured in The Business Times and #link("https://www.zaobao.com.sg/realtime/singapore/story20250729-7237751")[Lianhe Zaobao].
-- Collaborating with SPD (Society for the Physically Disabled); hosted a sharing session to train career facilitators on using the platform.
-- Stack: Next.js, LLM agents, OpenAI API, ElevenLabs, Vercel, Render, Supabase, SQL. Developed with agentic tooling: OpenCode, Ralph loop, oh-my-openagent and Semble Search.
 
 // "ATC-ASR" on its own means nothing outside the niche, so the first mention
 // is spelled out and the acronym is introduced after it.

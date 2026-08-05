@@ -39,12 +39,12 @@
       "url": "https://resumify.org"
     },
     {
-      "company": "Republic of Singapore Air Force, RAiD",
+      "company": "Republic of Singapore Air Force (RAiD)",
       "logo": "raid.png",
       "role": "AI Engineer Volunteer",
       "date": "2023 - June 2026",
-      "description": "Built the full-stack system that analyses Air Traffic Control situations: an NVIDIA NeMo speech recognition and speaker diarisation layer (finetuned parakeet-tdt, canary-1b and NGPU-LM on H200 GPUs) feeding a Qwen3 reasoning layer served with vLLM, deployed to edge devices for real-time transcription in the control room. Built an LLM-powered internal search tool at a RAiD hackathon hosted at Microsoft's office.",
-      "tech": "NVIDIA NeMo, vLLM, Qwen3, PyTorch, NVIDIA H200, Edge Deployment"
+      "description": "Built the full-stack system that analyses Air Traffic Control situations: an NVIDIA NeMo speech recognition and speaker diarisation layer (finetuned parakeet-tdt, canary-1b and NGPU-LM) feeding a Qwen3 reasoning layer served with vLLM, deployed to edge devices for real-time transcription in the control room. Built an LLM-powered internal search tool at a RAiD hackathon hosted at Microsoft's office.",
+      "tech": "NVIDIA NeMo, vLLM, Qwen3, PyTorch, Edge Deployment"
     },
     {
       "company": "Bifrost AI",
@@ -55,11 +55,11 @@
       "tech": "YOLO, VAE, JinaCLIP, OpenCV"
     },
     {
-      "company": "GovTech Singapore, Video Analytics, Data Science and AI Division",
+      "company": "GovTech Singapore",
       "logo": "govtech.png",
       "role": "AI Engineer Intern",
       "date": "2023 - 2024",
-      "description": "Red-teamed GovTech's AI Image Detector with custom-trained LoRAs. Lead AI engineer on a computer vision pipeline for MSO's OneService App on AWS (EKS, SageMaker), classifying thousands of daily municipal reports via zero-shot ensembles. Built real-time animal welfare detection for NParks with OWLv2, tuned by Bayesian optimisation (Hyperopt). Prototyped a novel object-detection explainability method using SegGPT and SAM.",
+      "description": "Video Analytics team, Data Science and AI Division. Red-teamed GovTech's AI Image Detector with custom-trained LoRAs. Lead AI engineer on a computer vision pipeline for MSO's OneService App on AWS (EKS, SageMaker), classifying thousands of daily municipal reports via zero-shot ensembles. Built real-time animal welfare detection for NParks with OWLv2, tuned by Bayesian optimisation (Hyperopt). Prototyped a novel object-detection explainability method using SegGPT and SAM.",
       "tech": "OWLv2, LoRA, Few-Shot Segmentation, XAI"
     }
   ],
