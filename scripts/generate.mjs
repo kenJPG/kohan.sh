@@ -1,36 +1,27 @@
-/**
- * generate.mjs — Builds index.html from content.json + logos/* + an optional portrait.
- *
- * Usage: node scripts/generate.mjs
- *
- * Content pipeline:
- *   content.json  →  all text content (bio, experience, skills, links, resume)
- *   portrait      →  optional photo, resized to WebP at build time
- *   logos/*       →  company logo images
- *
- * To add/update content:  edit content.json
- * To add your photo:      drop a jpg/png at the repo root named to match
- *                         content.portrait.src, then rebuild
- * To add a company logo:  drop an image in logos/ named to match the "logo"
- *                         field in content.json (e.g. "resumify.png")
- */
-
-import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync, statSync } from "fs";
+import { readFileSync, writeFileSync, copyFileSync, existsSync, readdirSync, mkdirSync, statSync } from "fs";
 import { resolve, join, basename, extname } from "path";
-import sharp from "sharp";
+
+// sharp ships prebuilt per-platform binaries. This repo gets run from both
+// Windows and WSL against the same node_modules on /mnt/c, so whichever OS
+// installed last is the only one that can load it. Logo optimisation is a
+// nice-to-have, not a reason to block the dev server - fall back to copying
+// the originals through unresized.
+let sharp = null;
+try {
+  ({ default: sharp } = await import("sharp"));
+} catch (error) {
+  console.warn(`  ! sharp unavailable (${error.code ?? "load failed"}) - copying logos unoptimised.`);
+  console.warn(`    To fix: pnpm install (from this OS), or see supportedArchitectures in package.json.`);
+}
 
 const ROOT = resolve(import.meta.dirname, "..");
 const CONTENT_PATH = join(ROOT, "content.json");
 const LOGOS_DIR = join(ROOT, "logos");
 const PUBLIC_DIR = join(ROOT, "public");
-// Generated images live under public/img so they can be gitignored wholesale,
-// while the committed resume PDFs elsewhere in public/ stay tracked.
 const IMG_DIR = join(PUBLIC_DIR, "img");
 const OUT_PATH = join(ROOT, "index.html");
 
 const content = JSON.parse(readFileSync(CONTENT_PATH, "utf-8"));
-
-// ── Helpers ───────────────────────────────────────────────────────────
 
 function esc(str) {
   if (str == null) return "";
@@ -41,7 +32,11 @@ function esc(str) {
     .replace(/"/g, "&quot;");
 }
 
-/** Convert markdown-style [text](url) links in a string to <a> tags */
+function normalizeHeroBio(str) {
+  if (str == null) return "";
+  return String(str).replace(/—/g, "-");
+}
+
 function linkify(str) {
   if (str == null) return "";
   return esc(str).replace(
@@ -50,12 +45,10 @@ function linkify(str) {
   );
 }
 
-/** "2023 - 2026" → "2023—2026". En/em dashes read as a range, hyphens read as a typo. */
 function range(str) {
   return esc(str).replace(/\s*-\s*/g, "–");
 }
 
-/** Split a comma list into individual items. */
 function items(str) {
   return String(str ?? "")
     .split(",")
@@ -63,51 +56,87 @@ function items(str) {
     .filter(Boolean);
 }
 
-// ── Portrait ──────────────────────────────────────────────────────────
-// Resized at build time so the page ships one right-sized WebP instead of a
-// multi-megabyte camera original, and so width/height are known up front —
-// without them the image reflows the hero as it loads.
+const LOGO_PX = 18;
 
-const PORTRAIT_WIDTH = 320; // CSS px at 1x; emitted at 2x for retina
+// ── Command block ─────────────────────────────────────────────────────────
+// A hand-placed asset, not a generated one, so it lives at public/ root
+// rather than public/img/ - that directory is gitignored as build output and
+// anything dropped in it would never reach the deployed site.
+//
+// No loading="lazy": it sits inside the first viewport, at the foot of the
+// hero, so deferring it would only make it pop in late.
+//
+// Both files are true 16x16 - the browser only ever scales UP, which
+// `image-rendering: pixelated` keeps crisp. Downscaling pixel art to an
+// arbitrary height drops rows unevenly and looks ragged.
+const COMMAND_BLOCK_SRC = "/command-block.gif";
+const COMMAND_BLOCK_STILL = "/command-block.png";
 
-async function buildPortrait(portrait) {
-  if (!portrait?.src) return null;
+// ── Block textures ────────────────────────────────────────────────────────
+// Real Minecraft assets, committed under public/textures/ rather than
+// generated: mirrored from InventivetalentDev/minecraft-assets (1.20.1).
+// They are Mojang's textures, used here as fan art.
+//
+// The directory is the source of truth - drop a 16x16 png in and it joins the
+// rotation, no code change. destroy_stage_N are the game's own break overlay
+// frames, so the fracture is the real animation rather than an imitation.
 
-  const source = join(ROOT, portrait.src);
-  if (!existsSync(source)) {
-    console.warn(
-      `  · Portrait "${portrait.src}" not found — hero renders type-only.\n` +
-        `    Drop the file at ${source} and rebuild to include it.`
-    );
-    return null;
-  }
+const TEXTURE_DIR = join(PUBLIC_DIR, "textures");
 
-  mkdirSync(IMG_DIR, { recursive: true });
+function readTextures() {
+  if (!existsSync(TEXTURE_DIR)) return { names: [], cracks: [] };
 
-  const name = basename(portrait.src, extname(portrait.src));
-  const outName = `${name}-${PORTRAIT_WIDTH * 2}.webp`;
+  const files = readdirSync(TEXTURE_DIR).filter((f) => f.endsWith(".png"));
 
-  const info = await sharp(source)
-    .resize(PORTRAIT_WIDTH * 2, PORTRAIT_WIDTH * 2, { fit: "cover", position: "attention" })
-    .webp({ quality: 82 })
-    .toFile(join(IMG_DIR, outName));
+  const names = files
+    .filter((f) => !f.startsWith("destroy_stage_"))
+    .sort()
+    .map((f) => `/textures/${f}`);
 
-  console.log(`  ✓ Portrait: ${portrait.src} → img/${outName} (${(info.size / 1024).toFixed(1)} KB)`);
+  const cracks = files
+    .filter((f) => f.startsWith("destroy_stage_"))
+    .sort((a, b) => Number(a.match(/\d+/)[0]) - Number(b.match(/\d+/)[0]))
+    .map((f) => `/textures/${f}`);
 
-  return {
-    src: `/img/${outName}`,
-    alt: portrait.alt ?? content.name,
-    width: PORTRAIT_WIDTH,
-    height: PORTRAIT_WIDTH,
-  };
+  console.log(`  ✓ Textures: ${names.length} blocks, ${cracks.length} break frames`);
+  return { names, cracks };
 }
 
-// ── Logos ─────────────────────────────────────────────────────────────
-// These render at 18px. Shipping the originals meant sending 429 KB of
-// raid.png to draw an 18-pixel square, so each is resized to 2x and encoded
-// as WebP at build time.
+const textures = readTextures();
 
-const LOGO_PX = 18;
+/**
+ * Renders the greeting, turning a [bracketed] run into the block. Only that
+ * run gets a texture - "Hi" is near enough to square that one 16x16 tile maps
+ * onto it as a single block, which is the whole idea; stretching one tile
+ * across "Hi! I'm Kenneth" would just smear it.
+ */
+function renderGreeting(text) {
+  const match = String(text ?? "").match(/^(.*?)\[([^\]]+)\](.*)$/);
+  if (!match || textures.names.length === 0) {
+    return esc(String(text ?? "").replace(/[[\]]/g, ""));
+  }
+
+  const [, before, word, after] = match;
+  return (
+    esc(before) +
+    `<span class="brk" data-textures="${esc(textures.names.join(","))}"` +
+    ` data-cracks="${esc(textures.cracks.join(","))}"` +
+    ` style="--tex: url('${esc(textures.names[0])}')">${esc(word)}</span>` +
+    esc(after)
+  );
+}
+
+// The animated front face, built from Minecraft's own command_block_front
+// sprite strip (16x64, four keyframes) with the tweens its .mcmeta asks for
+// (frametime 10 ticks, interpolate true) baked in - a 2s loop, same as the
+// game. See the note by COMMAND_BLOCK_SRC for why it is a gif.
+//
+// <picture> serves the static first frame under prefers-reduced-motion: a gif
+// animates regardless of CSS, so it is the only way to actually honour that.
+const commandBlockMarkup = `<picture>
+          <source srcset="${COMMAND_BLOCK_STILL}" media="(prefers-reduced-motion: reduce)">
+          <img class="block" src="${COMMAND_BLOCK_SRC}" alt="" width="16" height="16" decoding="async">
+        </picture>`;
 
 async function buildLogos() {
   const map = new Map();
@@ -119,9 +148,16 @@ async function buildLogos() {
 
   for (const file of files) {
     const name = basename(file, extname(file));
-    const outName = `${name}.webp`;
     const before = statSync(join(LOGOS_DIR, file)).size;
 
+    if (!sharp) {
+      copyFileSync(join(LOGOS_DIR, file), join(IMG_DIR, "logos", file));
+      map.set(file, `/img/logos/${file}`);
+      console.log(`  · Logo: ${file} copied as-is (${(before / 1024).toFixed(1)} KB)`);
+      continue;
+    }
+
+    const outName = `${name}.webp`;
     const info = await sharp(join(LOGOS_DIR, file))
       .resize(LOGO_PX * 2, LOGO_PX * 2, { fit: "contain", background: { r: 255, g: 255, b: 255, alpha: 0 } })
       .webp({ quality: 88 })
@@ -138,23 +174,20 @@ async function buildLogos() {
 
 const logos = await buildLogos();
 
-// ── Render ────────────────────────────────────────────────────────────
-
-/**
- * Every entry is the same shape: a date rail, a title, a source line and a
- * body. Keeping one renderer means the three sections cannot drift apart
- * visually, which is the whole point of the date-rail grid.
- */
-function entry({ date, title, source, sourceLogo, body, meta }) {
+function entry({ date, title, source, sourceLogo, sourceUrl, body, meta, gpa }) {
   const logo = sourceLogo && logos.has(sourceLogo)
     ? `<img class="entry__logo" src="${esc(logos.get(sourceLogo))}" alt="" width="18" height="18" loading="lazy">`
     : "";
+  const sourceMarkup = sourceUrl
+    ? `<a class="entry__org" href="${esc(sourceUrl)}" rel="noreferrer">${esc(source)}</a>`
+    : `<span>${esc(source)}</span>`;
 
   return `<article class="entry">
   <div class="entry__date">${range(date)}</div>
   <div class="entry__main">
     <h3 class="entry__title">${esc(title)}</h3>
-    ${source ? `<p class="entry__source">${logo}<span>${esc(source)}</span></p>` : ""}
+    ${source ? `<p class="entry__source">${logo}${sourceMarkup}</p>` : ""}
+    ${gpa ? `<p class="entry__gpa">GPA ${esc(gpa)}</p>` : ""}
     ${body ? `<p class="entry__body">${linkify(body)}</p>` : ""}
     ${meta ? `<ul class="tags">${items(meta).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
   </div>
@@ -162,13 +195,13 @@ function entry({ date, title, source, sourceLogo, body, meta }) {
 }
 
 const renderExperience = (e) =>
-  entry({ date: e.date, title: e.role, source: e.company, sourceLogo: e.logo, body: e.description, meta: e.tech });
+  entry({ date: e.date, title: e.role, source: e.company, sourceLogo: e.logo, sourceUrl: e.url, body: e.description, meta: e.tech });
 
 const renderResearch = (r) =>
   entry({ date: r.org, title: r.title, body: r.detail });
 
 const renderEducation = (e) =>
-  entry({ date: e.date, title: e.school, source: e.degree, body: e.awards });
+  entry({ date: e.date, title: e.school, source: e.degree, body: e.awards, gpa: e.gpa, meta: e.coursework });
 
 function renderSkills(skills) {
   return Object.entries(skills)
@@ -187,6 +220,17 @@ function renderLinks(links = {}) {
     .join("\n      ");
 }
 
+function renderPhotos(photos = []) {
+  return photos
+    .filter((photo) => typeof photo?.src === "string" && photo.src.trim())
+    .map((photo) => {
+      const src = `/portraits/${basename(photo.src.trim())}`;
+      const alt = photo.alt ?? content.name;
+      return `<img src="${esc(src)}" alt="${esc(alt)}" width="480" height="600" loading="lazy">`;
+    })
+    .join("\n        ");
+}
+
 function section(id, title, body) {
   return `<section class="section" aria-labelledby="${id}">
   <h2 class="section__title" id="${id}">${esc(title)}</h2>
@@ -196,12 +240,9 @@ function section(id, title, body) {
 </section>`;
 }
 
-// ── Assemble ──────────────────────────────────────────────────────────
-
-const portrait = await buildPortrait(content.portrait);
 const resume = content.resume;
 const role = content.role ?? "";
-const description = `${content.name}${role ? ` — ${role}` : ""}, ${content.location}.`;
+const description = [content.name, role, content.location].filter(Boolean).join(" · ");
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -209,30 +250,25 @@ const html = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="${esc(description)}">
-  <title>${esc(content.name)}${role ? ` — ${esc(role)}` : ""}</title>
+  <title>${esc(content.name)}${role ? ` · ${esc(role)}` : ""}</title>
   <link rel="canonical" href="https://kohan.sh/">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <div class="page">
     <header class="hero">
-      <div class="hero__text">
-        <p class="hero__eyebrow">${esc([content.location, role].filter(Boolean).join(" · "))}</p>
-        <h1 class="hero__name">${esc(content.name)}</h1>
-        <p class="hero__tagline">${esc(content.tagline)}</p>
+      <div class="hero__photos">
+        ${renderPhotos(content.photos)}
       </div>
-      ${
-        portrait
-          ? `<img class="hero__portrait" src="${esc(portrait.src)}" alt="${esc(portrait.alt)}" width="${portrait.width}" height="${portrait.height}" fetchpriority="high">`
-          : ""
-      }
+      <div class="hero__title">
+        <h1 class="hero__name">${renderGreeting(content.greeting ?? content.name)}</h1>
+      </div>
+      <p class="hero__role">${esc([content.location, role].filter(Boolean).join(" · "))}</p>
+      <p class="hero__bio">${linkify(normalizeHeroBio(content.bio))}.</p>
       <nav class="actions" aria-label="Contact and documents">
         ${
           resume
-            ? `<a class="button" href="${esc(resume.href)}" data-open-resume>
-          <span>${esc(resume.label)}</span>
-          <span class="button__meta">${esc(resume.meta)}</span>
-        </a>`
+            ? `<a class="button" href="${esc(resume.href)}" target="_blank" rel="noreferrer">${esc(resume.label)}</a>`
             : ""
         }
         <div class="actions__links">
@@ -240,12 +276,12 @@ const html = `<!DOCTYPE html>
           ${renderLinks(content.links)}
         </div>
       </nav>
+      <div class="hero__block" aria-hidden="true">
+        ${commandBlockMarkup}
+      </div>
     </header>
 
-    <div class="page-main">
-      <p class="intro">${linkify(content.bio)}.</p>
-
-      <main id="main">
+    <main id="main">
       ${section("experience", "Experience", content.experience.map(renderExperience).join("\n"))}
       ${section("research", "Research & Community", content.research.map(renderResearch).join("\n"))}
       ${section("education", "Education", content.education.map(renderEducation).join("\n"))}
@@ -253,29 +289,9 @@ const html = `<!DOCTYPE html>
     </main>
 
     <footer class="footer">
-      <div class="table-tennis" data-table-tennis>
-        <div class="table-tennis__intro">
-          <h2 class="section__title" id="table-tennis">Table tennis</h2>
-          <p>Made it to the bottom. First to 5.</p>
-        </div>
-        <canvas class="table-tennis__canvas" width="640" height="360" aria-labelledby="table-tennis"
-                role="img" aria-describedby="table-tennis-help" tabindex="0"></canvas>
-        <p class="table-tennis__help" id="table-tennis-help">
-          Move with the pointer, or focus the table and use <kbd>&uarr;</kbd> <kbd>&darr;</kbd>.
-        </p>
-      </div>
       <p class="footer__note">${esc(content.name)} · ${esc(content.location)}</p>
     </footer>
-    </div>
   </div>
-
-  ${
-    resume
-      ? `<dialog class="resume-dialog">
-    <iframe src="${esc(resume.href)}" title="Resume" loading="lazy"></iframe>
-  </dialog>`
-      : ""
-  }
 
   <script type="module" src="./src/main.ts"></script>
 </body>

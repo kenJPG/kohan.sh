@@ -1,58 +1,31 @@
-/* ============================================================================
-   kohan.sh
-   Direction: Deference, with a voice. Apple HIG discipline, one deliberate
-   exception: the display serif. It is not borrowed from a trend - it is the
-   face the owner's own resume sets its name in (Instrument Serif, per
-   resume/resume.typ). The site and the PDF read as one brand.
-
-   Rules this file follows:
-   1. Type carries the hierarchy. Colour never does.
-   2. Colour is reserved for action. Nothing decorative is coloured.
-   3. Every value below is a token. No magic numbers in the rules themselves.
-   ========================================================================= */
-
-/* ── Fonts (self-hosted; no CDN, no layout shift beyond swap) ─────────── */
-
 @font-face {
-  font-family: "Instrument Serif";
-  src: url("/fonts/instrument-serif-regular.woff2") format("woff2");
-  font-weight: 400;
+  font-family: "Geist";
+  src: url("/fonts/geist-variable.woff2") format("woff2");
+  font-weight: 100 700;
   font-style: normal;
   font-display: swap;
 }
 
-@font-face {
-  font-family: "Instrument Serif";
-  src: url("/fonts/instrument-serif-italic.woff2") format("woff2");
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
 :root {
-  /* Colour. One ink family, swapped by theme tokens only. */
-  --paper: #f5f5f3;
-  --ink: #174714;
-  --muted: #505060;
-  --rule: #ededea;
-  --surface: #ecece8;
+  --paper: #ffffff;
+  --ink: #171717;
+  --muted: #6b6b6b;
+  --rule: #e8e8e6;
+  --surface: #f2f2f0;
 
-  /* Type. System stack for the document, serif for the voice. */
-  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display",
-          "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display",
+          "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", "Cascadia Mono", Consolas, monospace;
 
-  /* Scale: 1.25 major third, fluid at the display sizes only. Body stays put. */
-  --t--2: 0.8125rem;  /* 13px — tags, meta */
-  --t--1: 0.9375rem;  /* 15px — secondary */
-  --t-0:  1.0625rem;  /* 17px — body */
-  --t-1:  1.3125rem;  /* 21px — entry titles */
-  --t-2:  clamp(1.35rem, 1.1rem + 1.2vw, 1.6875rem);
-  --t-3:  clamp(1.6rem, 1.2rem + 2vw, 2.125rem);
-  --t-4:  clamp(2.375rem, 1.5rem + 3vw, 3.5rem);  /* 38 → 56px, the name */
+  --t--2: 0.8125rem;
+  --t--1: 0.9375rem;
+  --t-0: 1.0625rem;
+  --t-1: 1.3125rem;
+  --t-2: clamp(1.35rem, 1.1rem + 1.2vw, 1.6875rem);
+  --t-3: clamp(1.6rem, 1.2rem + 2vw, 2.125rem);
+  --t-4: clamp(2.375rem, 1.5rem + 3vw, 3.5rem);
+  --t-5: clamp(2.75rem, 1.5rem + 4.5vw, 5rem);
 
-  /* Spacing: 4px base, geometric. */
   --s-1: 0.25rem;
   --s-2: 0.5rem;
   --s-3: 0.75rem;
@@ -63,25 +36,12 @@
   --s-8: 4.5rem;
 
   --measure: 66ch;
-  --rail: 7.5rem;   /* date column */
-  --page: 74rem;
+  --rail: 7.5rem;
 
   /* Shape system. Containers: 8px. Controls: 6px. */
   --radius-container: 0.5rem;
   --radius-control: 0.375rem;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #141613;
-    --ink: #e6e9e1;
-    --muted: #99a098;
-    --rule: #262a26;
-    --surface: #1a1d19;
-  }
-}
-
-/* ── Reset ───────────────────────────────────────────────────────────── */
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -89,7 +49,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
 body {
@@ -131,10 +91,6 @@ ul { list-style: none; padding: 0; }
 
 .skip:focus { top: var(--s-4); }
 
-/* Available to assistive tech, absent from the layout. Used for the game's
-   score, which is already drawn on the canvas — announcing it twice visually
-   would be redundant, but not announcing it at all would make the game
-   unplayable without sight. */
 .sr-only {
   position: absolute;
   width: 1px; height: 1px;
@@ -147,125 +103,203 @@ ul { list-style: none; padding: 0; }
 
 ::selection { background: var(--ink); color: var(--paper); }
 
-/* ── Layout ──────────────────────────────────────────────────────────── */
-/* Asymmetric rail: the name and the resume pin to the left while the
-   document scrolls on the right. The rail is sticky so the site's one job —
-   showing the resume — is always one click away. */
-
 .page {
-  max-width: 74rem;
+  max-width: 76rem;
   margin-inline: auto;
-  padding: var(--s-8) var(--s-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-7);
+  padding: 0 var(--s-5) var(--s-8);
 }
 
-@media (min-width: 62rem) {
-  .page {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: clamp(2.5rem, 5vw, 5rem);
-  }
+main {
+  max-width: 46rem;
+  margin-inline: auto;
+  width: 100%;
 }
 
-.page-main {
-  flex: 1 1 0;
-  min-width: 0; /* allow the column to shrink so long words wrap, not overflow */
-}
-
-/* ── Hero (the rail) ─────────────────────────────────────────────────── */
-
+/* flex-start, not center: the content is positioned from the top by
+   padding-top, and the block is pinned to the bottom by its own margin-top:
+   auto. Centring on top of that fought both. */
 .hero {
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: var(--s-6);
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  gap: var(--s-4);
+  padding-top: clamp(2rem, 8vh, 6rem);
 }
 
-@media (min-width: 62rem) {
-  .hero {
-    flex: 0 1 21rem;
-    min-width: 0;
-    position: sticky;
-    top: var(--s-5);
-  }
+/* 20vh of headroom only once the viewport is tall enough to pay for it. The
+   budget is padding-top + photo (22vh) + ~330px of type and gaps + block
+   (15vh) + its tail; at 720px tall a 20vh top would push the block ~46px past
+   the fold. Above ~900px there is room. */
+@media (min-height: 56rem) {
+  .hero { padding-top: 20vh; }
 }
 
-.hero__eyebrow {
-  font-size: var(--t--1);
-  color: var(--muted);
-  margin-bottom: var(--s-2);
+/* Fixed gaps do not shrink with the viewport, so on a short screen the
+   vh-sized photo and block can still push past the fold. */
+@media (max-height: 44rem) {
+  .hero { gap: var(--s-3); }
+}
+
+.hero__title {
+  position: relative;
 }
 
 .hero__name {
-  font-family: var(--serif);
-  font-size: clamp(2.25rem, 3.6vw, 3.5rem);
-  font-weight: 400;
+  font-size: var(--t-5);
+  font-weight: 600;
+  letter-spacing: -0.03em;
   line-height: 1.05;
-  letter-spacing: -0.01em;
   text-wrap: balance;
 }
 
-/* A full stop after the name: the sentence the page is about. */
-.hero__name::after { content: "."; }
+/* Texturing only inside @supports: the technique needs transparent text, and
+   without background-clip the word would render invisible rather than merely
+   unstyled. Outside it, "Hi" is plain ink and nothing is lost.
 
-.hero__tagline {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 400;
-  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+   Two stacked layers, both clipped to the glyphs - the break overlay on top,
+   the block texture beneath - sized to cover the word exactly once rather
+   than tiling, so "Hi" reads as a single block. multiply is how the game
+   composites destroy_stage over a block: the frames are near-transparent
+   white with opaque grey cracks, so multiply darkens through the texture
+   instead of pasting flat grey over it.
+
+   JS swaps --tex and --crack; the CSS never needs to know which exist. */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .brk[data-textures] {
+    background-image: var(--crack, none), var(--tex, none);
+    /* cover, not 100% 100%: the word's box is ~0.7 aspect, so stretching a
+       16x16 tile to fill it would make every texel a 1.4:1 rectangle. cover
+       scales uniformly and crops the sides instead, keeping pixels square -
+       which is the whole point of using the real texture. */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-blend-mode: multiply, normal;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    /* Keeps the 16px source hard-edged rather than smoothed when scaled up. */
+    image-rendering: pixelated;
+  }
+}
+
+/* Break particles: spawned by JS, positioned over the heading, animated with
+   the Web Animations API so there is no keyframe per particle. */
+.shard {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.hero__role {
   color: var(--muted);
-  line-height: 1.3;
-  max-width: 26ch;
-  text-wrap: balance;
-  padding-bottom: 0.15em; /* italic descender clearance */
+  font-size: var(--t-1);
 }
 
-.hero__portrait {
-  width: 8rem;
-  height: 8rem;
-  border-radius: 50%;
+.hero__bio {
+  max-width: 38rem;
+  color: var(--muted);
+}
+
+.hero__photos {
+  display: flex;
+  justify-content: center;
+}
+
+/* Sized from the height, because the height is what has to be budgeted against
+   the 100dvh hero - width follows from the 4:5 ratio. The rem bounds keep it
+   sane on very short and very tall viewports; without them a 22vh photo is a
+   thumbnail on a laptop and a poster on a 4K display.
+
+   width: auto and height being explicitly set both matter: the markup carries
+   width/height attributes, which become presentational hints that any author
+   rule beats. Leaving one axis unset lets the raw attribute through, which is
+   what previously pinned this to 600px and blew the hero past the fold.
+
+   The mask fades the photo into the page instead of ending it on a hard edge.
+   Border and shadow are gone - an outline that dissolves halfway down reads as
+   a rendering bug, and box-shadow is drawn from the masked shape, so it would
+   fade out unevenly too. */
+.hero__photos img {
+  width: auto;
+  height: clamp(8rem, 22vh, 15rem);
+  aspect-ratio: 4 / 5;
   object-fit: cover;
-  background: var(--surface);
-  flex: none;
-  filter: grayscale(100%) contrast(1.05);
+  border-radius: var(--radius-container);
+  -webkit-mask-image: linear-gradient(to bottom, #000 52%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 52%, transparent 100%);
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero__photos img:hover {
+  transform: translateY(-0.35rem);
+}
+
+/* margin-top: auto pins the block to the bottom of the 100dvh hero, so it is
+   the last thing above the fold on load and reads as a floor for the type. */
+.hero__block {
+  margin-top: auto;
+  padding-bottom: clamp(1rem, 3.5vh, 3rem);
+}
+
+.hero__block picture { display: block; }
+
+/* Driven from height so it can be budgeted against the hero. image-rendering
+   keeps the nearest-neighbour upscale of the 16x16 gif hard-edged rather than
+   smoothing it into mush. The animation is baked into the file, not CSS -
+   see the <picture> in generate.mjs for the reduced-motion path. */
+.block {
+  display: block;
+  width: auto;
+  height: clamp(4rem, 15vh, 10rem);
+  image-rendering: pixelated;
 }
 
 /* ── Actions ─────────────────────────────────────────────────────────── */
-/* The resume is the site's job, so it is the only filled control on the page.
-   It opens the PDF in an in-page viewer (see .resume-dialog) rather than
-   downloading it; with JavaScript disabled the link still opens the PDF
-   directly in the browser's own viewer. Everything else is a text link. */
+/* The resume link opens the PDF in a new tab; the browser's own viewer
+   renders it. It reads as a quiet text link like the rest of the row -
+   the page leads with type, not with a filled control. */
 
+/* One gap value, not two: a wider column gap made "Resume" look detached from
+   the rest of the row rather than like the first item in it. */
 .actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--s-4) var(--s-5);
+  justify-content: center;
+  gap: var(--s-4);
   margin-top: var(--s-2);
 }
 
+/* Same ink as .link - it sits in a row of links, so weighting it darker read
+   as an inconsistency rather than as emphasis. */
 .button {
   display: inline-flex;
   align-items: baseline;
   gap: var(--s-2);
-  padding: var(--s-3) var(--s-5);
-  background: var(--ink);
-  color: var(--paper);
-  border-radius: var(--radius-control);
+  color: color-mix(in srgb, var(--ink) 78%, var(--paper));
   text-decoration: none;
-  font-weight: 500;
-  transition: background-color 140ms ease, transform 140ms ease;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 24%, transparent);
+  padding-bottom: 1px;
+  transition: border-color 140ms ease, color 140ms ease;
 }
 
-.button:hover { background: color-mix(in srgb, var(--ink) 88%, var(--paper)); }
+.button:hover { color: var(--ink); border-bottom-color: var(--ink); }
 .button:active { transform: translateY(1px); }
-.button__meta { font-size: var(--t--2); opacity: 0.82; font-weight: 400; }
 
 .actions__links {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: var(--s-4);
 }
 
@@ -282,9 +316,7 @@ ul { list-style: none; padding: 0; }
   border-bottom-color: var(--ink);
 }
 
-/* Inline links inside body copy stay underlined — they need to be findable
-   without relying on colour alone. */
-.entry__body a, .intro a {
+.entry__body a, .hero__bio a {
   color: color-mix(in srgb, var(--ink) 78%, var(--paper));
   text-decoration-line: underline;
   text-decoration-color: color-mix(in srgb, var(--ink) 24%, transparent);
@@ -293,19 +325,10 @@ ul { list-style: none; padding: 0; }
   transition: color 140ms ease, text-decoration-color 140ms ease;
 }
 
-.entry__body a:hover, .intro a:hover {
+.entry__body a:hover, .hero__bio a:hover {
   color: var(--ink);
   text-decoration-color: var(--ink);
 }
-
-/* ── Intro (the bio leads the document column) ───────────────────────── */
-
-.intro {
-  max-width: var(--measure);
-  margin-bottom: var(--s-7);
-}
-
-/* ── Sections ────────────────────────────────────────────────────────── */
 
 .section {
   padding-block: var(--s-8);
@@ -318,13 +341,9 @@ ul { list-style: none; padding: 0; }
   font-size: var(--t--1);
   font-weight: 600;
   color: var(--muted);
-  letter-spacing: 0;   /* deliberately NOT wide-tracked all-caps */
+  letter-spacing: 0;
   margin-bottom: var(--s-5);
 }
-
-/* ── Entries ─────────────────────────────────────────────────────────── */
-/* The date rail is the page's only structural device. It gives every section
-   the same spine so the eye learns one pattern and reuses it. */
 
 .entry {
   display: grid;
@@ -340,7 +359,7 @@ ul { list-style: none; padding: 0; }
   font-size: var(--t--2);
   color: var(--muted);
   font-variant-numeric: tabular-nums;
-  padding-top: 0.35em; /* optical alignment to the title's cap height */
+  padding-top: 0.35em;
 }
 
 .entry__title {
@@ -357,6 +376,26 @@ ul { list-style: none; padding: 0; }
   color: var(--muted);
   font-size: var(--t--1);
   margin-top: var(--s-1);
+}
+
+.entry__source a {
+  color: color-mix(in srgb, var(--ink) 78%, var(--paper));
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in srgb, var(--ink) 24%, transparent);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  transition: color 140ms ease, text-decoration-color 140ms ease;
+}
+
+.entry__source a:hover {
+  color: var(--ink);
+  text-decoration-color: var(--ink);
+}
+
+.entry__gpa {
+  margin-top: var(--s-2);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .entry__logo {
@@ -376,10 +415,6 @@ ul { list-style: none; padding: 0; }
   .entry { grid-template-columns: var(--rail) 1fr; }
 }
 
-/* ── Tags ────────────────────────────────────────────────────────────── */
-/* Quiet text, no chips. The technologies are signal for a recruiter, so they
-   get read, not boxed. */
-
 .tags {
   display: flex;
   flex-wrap: wrap;
@@ -393,8 +428,6 @@ ul { list-style: none; padding: 0; }
   padding: 0;
   white-space: nowrap;
 }
-
-/* ── Skills ──────────────────────────────────────────────────────────── */
 
 .skills { display: grid; gap: var(--s-5); }
 
@@ -412,44 +445,7 @@ ul { list-style: none; padding: 0; }
   .skill dt { padding-top: 0.15em; }
 }
 
-/* ── Footer / table tennis ───────────────────────────────────────────── */
-
 .footer { padding-top: var(--s-8); }
-
-.table-tennis__intro p {
-  color: var(--muted);
-  font-size: var(--t--1);
-  margin-top: var(--s-1);
-}
-
-.table-tennis__canvas {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 9;
-  margin-top: var(--s-4);
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-container);
-  cursor: none;
-  touch-action: none;
-}
-
-.table-tennis__canvas:focus-visible { cursor: default; }
-
-.table-tennis__help {
-  font-size: var(--t--2);
-  color: var(--muted);
-  margin-top: var(--s-3);
-}
-
-kbd {
-  font-family: var(--mono);
-  font-size: 0.9em;
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-control);
-  padding: 0 0.3em;
-}
 
 .footer__note {
   margin-top: var(--s-7);
@@ -459,41 +455,7 @@ kbd {
   color: var(--muted);
 }
 
-/* ── Resume viewer ───────────────────────────────────────────────────── */
-/* Native <dialog>: top layer, Esc to close, focus handled by the browser.
-   The iframe is the browser's own PDF renderer - no third-party viewer,
-   no dependency, and it inherits the theme for everything around it. */
-
-.resume-dialog {
-  width: min(68rem, 94vw);
-  height: min(85vh, 62rem);
-  margin: auto;
-  padding: 0;
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-container);
-  background: var(--paper);
-  color: var(--ink);
-  overflow: hidden;
-}
-
-.resume-dialog[open] {
-  display: grid;
-}
-
-.resume-dialog iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: #fff;
-}
-
-.resume-dialog::backdrop {
-  background: color-mix(in srgb, var(--ink) 45%, transparent);
-}
-
 /* ── Motion ──────────────────────────────────────────────────────────── */
-/* Honoured fully: the game never self-animates under this setting, it only
-   advances in response to input. See main.ts. */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -505,8 +467,7 @@ kbd {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .motion-safe .hero,
-  .motion-safe .intro {
+  .motion-safe .hero {
     animation: rise-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 

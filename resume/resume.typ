@@ -5,19 +5,22 @@
 //   typst compile resume/resume.typ --input paper=us-letter public/kenneth-chen-ko-han-resume-letter.pdf
 #let paper-size = sys.inputs.at("paper", default: "a4")
 
-// 9pt, not the template's 10pt default: US Letter is ~50pt shorter than A4,
-// and this is the largest size at which BOTH land on exactly one page with the
-// current content. Kept identical across paper sizes so the two PDFs differ
-// only in page dimensions. If you add content, run `pnpm resume:check` — it
-// fails the build rather than letting a two-page resume ship.
-#let body-font-size = 9pt
+// 8pt: the largest size at which both A4 and US Letter land on exactly one
+// page with the current content. It was 8.5pt before Makeable, the BrainHack
+// entry and the expanded Skills block went in. If you add content, run
+// `pnpm resume:check` — it fails the build rather than letting a two-page
+// resume ship.
+//
+// This is close to the floor. The next addition does not fit by shrinking:
+// either trade something out, or accept a two-page resume.
+#let body-font-size = 8pt
 
 #let name = "Kenneth Chen Ko Han"
 #let location = "Singapore"
 #let email = "kenneth.chen1337@gmail.com"
 #let github = "github.com/kenJPG"
 #let linkedin = "linkedin.com/in/kenneth-chen-ko-han"
-#let phone = "+65 9735 9296"
+#let phone = sys.inputs.at("phone", default: "+65 XXXX XXXX")
 #let personal-site = "kohan.sh"
 
 #show: resume.with(
@@ -44,14 +47,19 @@
 // Some ATS parsers read this field.
 #set document(title: name + " — Resume", author: name)
 
+// basic-resume leaves par.spacing at the Typst default (1.2em), which opens a
+// visible band of whitespace between every block. 0.9em is the loosest value
+// at which US Letter — the shorter of the two pages, so always the binding
+// constraint — still lands on one page. Loosen it and `pnpm resume:check`
+// fails; the font size above is the other lever.
+#set par(spacing: 0.9em)
+
 // ============================================================================
 // Dates, award years and bullet detail are taken from Resume_v3 (2025).
 // Do not invent values for anything still marked TODO below.
 //
-//  [ ] Resumify URL (or delete the url: argument entirely).
 //  [ ] ATC-ASR: the actual WER figure and the previous SOTA it beat.
 //      "State-of-the-art" without a number is the weakest form of the claim.
-//  [ ] Confirm ACL 2025 Main Conference vs. Findings, then fix the venue line.
 //  [ ] Confirm exact product names/casing of the agentic tools in Resumify.
 //  [ ] SP Scholarship year — assumed the 2021 intake, not stated on Resume_v3.
 //
@@ -61,42 +69,67 @@
 //  - Competitions: Hackomania 2024 (top 5%), DSTA BrainHack CODE EXP 2024
 //    (finalist), ASEAN Data Science Explorers 2024 (2nd in Singapore),
 //    Reply CodeTeen 2023 (92nd/1,400), GovTech GeekOut 2022 (1st/10).
-//  - RAiD: Microsoft internal hackathon on multi-agent research systems, and
-//    supervising technical decisions on the RSAF video analytics platform
-//    alongside NUS graduate students and NCS engineers.
-//  - SP: 14 distinctions. SP Scholarship (NUS Merit Scholarship is kept, but
-//    under Education rather than duplicated here).
+//  - RAiD: supervising technical decisions on the RSAF video analytics
+//    platform alongside NUS graduate students and NCS engineers.
+//  - SP: 14 distinctions. (NUS Merit Scholarship is kept, but under Education
+//    rather than duplicated here.)
 // ============================================================================
 
 == Education
 
+// `consistent: true` puts the dates top-right and the location bottom-right,
+// which is the order #work uses. Without it the template flips them for
+// Education only, so dates read roman-on-line-one under Work Experience and
+// italic-on-line-two under Education - the same field, styled two ways.
+// dates-helper, not a literal string: it emits an em dash, so this range
+// matches every other date range on the page instead of using a hyphen.
 #edu(
   institution: "National University of Singapore",
   location: "Singapore",
-  dates: "Aug 2026 - May 2030",
+  dates: dates-helper(start-date: "Aug 2026", end-date: "May 2029"),
   degree: "B.Comp. in Computer Science (NUS College), Minor in Mathematics",
   gpa: "",
+  consistent: true,
 )
-- NUS Merit Scholarship.
+- *NUS Merit Scholarship* -- awarded to high-calibre freshmen on academic results, leadership qualities and co-curricular record.
 
+// basic-resume's #edu accepts a `gpa` argument and then never renders it -
+// neither branch of the function references it. The CGPA has to ride along in
+// the degree string to appear at all.
 #edu(
   institution: "Singapore Polytechnic",
   location: "Singapore",
   dates: dates-helper(start-date: "Apr 2021", end-date: "Apr 2024"),
-  degree: "Diploma in Applied AI and Analytics",
+  degree: "Diploma in Applied AI and Analytics, CGPA: 4.0/4.0",
   gpa: "4.0/4.0",
+  consistent: true,
 )
+- *Lee Kuan Yew Award for Mathematics & Science* -- top tech graduate, *IMDA Gold Medal* -- top all-around achiever, *SP Scholarship*.
+- Coursework: Deep Learning, Machine Learning, Reinforcement Learning, Full-Stack Development, DevOps, Data Analytics, Data Engineering and Visualisation.
 
 == Work Experience
 
+// Title is a judgement call - "technical recruiter" is wrong (he designs and
+// runs the assessment, he does not source candidates). "Technical Interviewer"
+// is the plainest accurate reading and parses cleanly for ATS.
 #work(
-  company: "RAiD, Republic of Singapore Air Force",
+  company: "Makeable.build",
+  title: "Technical Interviewer",
+  location: "San Francisco, US (Remote)",
+  dates: dates-helper(start-date: "Jul 2026", end-date: "Present"),
+)
+- San Francisco startup backed by Afore Capital, with \$250K in pre-seed funding.
+- Designed and run the technical interview loop, assessing the engineering candidates the founders shortlist.
+
+#work(
+  company: "Republic of Singapore Air Force, RAiD",
   title: "AI Engineer (Volunteer)",
   location: "Singapore",
-  dates: dates-helper(start-date: "Oct 2023", end-date: "Present"),
+  dates: dates-helper(start-date: "Oct 2023", end-date: "Jun 2026"),
 )
-- Implemented speech recognition and speaker diarization for Air Traffic Control using NVIDIA NeMo and vLLM, fine-tuning Qwen3, parakeet-tdt, canary-1b and NGPU-LM on H200 GPUs.
-- Shipped real-time transcription with edge-deployed LLMs for air traffic controllers; presented to the Chief of Air Force.
+- Built the full-stack system that analyses Air Traffic Control situations: an NVIDIA NeMo speech recognition and speaker diarisation layer (fine-tuned parakeet-tdt, canary-1b and NGPU-LM on H200 GPUs) feeding a Qwen3 reasoning layer served with vLLM.
+- Deployed it to edge devices for real-time transcription in the control room; presented to the Chief of Air Force.
+- Built an LLM-powered internal search tool at a RAiD hackathon hosted at Microsoft's office.
 
 #work(
   company: "Bifrost AI",
@@ -104,73 +137,98 @@
   location: "Singapore",
   dates: dates-helper(start-date: "Apr 2024", end-date: "Jun 2024"),
 )
-- Trained YOLOv6-lite for mobile tank detection for ST Engineering's Unmanned Vehicles Team; hyper-parameter optimisation for incremental learning lifted accuracy 16%+.
+- Series A startup building synthetic data solutions for AI companies, backed by Sequoia Capital.
+- Trained YOLOv6-lite for military tank detection with ST Engineering's Unmanned Vehicles Team; tuning for incremental learning lifted accuracy 16%+.
 - Fine-tuned a StabilityAI VAE to improve text and high-frequency reconstruction for synthetic-to-real domain adaptation.
-- Prototyped a zero-shot method using JinaCLIP to visualise missing data for NASA, BigBear AI and DSTA.
+- Prototyped a zero-shot method with JinaCLIP to visualise missing data for NASA, BigBear AI and DSTA.
 
 #work(
-  company: "GovTech Singapore",
-  title: "AI Engineer Intern, Video Analytics (Data Science and AI Division)",
+  company: "GovTech Singapore, Video Analytics, Data Science and AI Division",
+  title: "AI Engineer Intern",
   location: "Singapore",
   dates: dates-helper(start-date: "Apr 2023", end-date: "Mar 2024"),
 )
-- Lead AI engineer on an end-to-end CV pipeline for MSO's OneService App, classifying thousands of daily municipal reports via zero-shot ensembles.
-- Built real-time animal welfare detection with OWLv2 for NParks; the pitch secured funding from the NParks executive board.
+- Lead AI engineer on a computer vision pipeline for MSO's OneService App on AWS (EKS, SageMaker), classifying thousands of daily municipal reports via zero-shot ensembles.
+- Built real-time animal welfare detection for NParks with OWLv2, tuned by Bayesian optimisation (Hyperopt); the pitch secured executive-board funding.
 - Red-teamed GovTech's AI Image Detector with custom-trained LoRAs simulating locally contextualised deepfakes.
+- Prototyped a novel feature-explainability method for object detection using SegGPT and SAM.
 
 == Projects
 
 #project(
   name: "Resumify",
-  url: "TODO-url",
+  url: "resumify.org",
   dates: dates-helper(start-date: "Nov 2023", end-date: "Present"),
 )
-- Co-founder and AI Lead of a non-profit built with YellowRibbon.gov.sg, HTX, and the Singapore Prison Service; an AI platform helping ex-inmates craft resumes for job placement.
-- Secured a \$24,100 grant from the National Youth Council and signed a 12-month MOU with YellowRibbon; featured in Zao Bao.
-- Built the platform on Next.js with LLM agents, the OpenAI API and ElevenLabs, developed using agentic tooling: Claude Code, Codex, OpenCode, Ralph loop, Oh My Open Agent, Semble Search and Hermes.
+- Co-founder and AI Lead of a non-profit with YellowRibbon.gov.sg, HTX and the Singapore Prison Service; AI-powered resume services now delivered to 600+ users.
+- Awarded SGD 24,000 in funding by the National Youth Council; signed a 12-month MOU with YellowRibbon; featured in The Business Times and #link("https://www.zaobao.com.sg/realtime/singapore/story20250729-7237751")[Lianhe Zaobao].
+- Collaborating with SPD (Society for the Physically Disabled); hosted a sharing session to train career facilitators on using the platform.
+- Stack: Next.js, LLM agents, OpenAI API, ElevenLabs, Vercel, Render, Supabase, SQL. Developed with agentic tooling: OpenCode, Ralph loop, oh-my-openagent and Semble Search.
 
+// "ATC-ASR" on its own means nothing outside the niche, so the first mention
+// is spelled out and the acronym is introduced after it.
 #project(
-  name: "ATC-ASR: fine-tuned parakeet-tdt",
+  name: "Air Traffic Control Automatic Speech Recognition (ATC-ASR)",
   url: "huggingface.co/qenneth",
   dates: "2025",
 )
-- Holds state-of-the-art Word Error Rate on the ATC-ASR benchmark with a fine-tuned parakeet-tdt-0.6b-v3.
+- Fine-tuned parakeet-tdt-0.6b-v3 with NVIDIA NeMo to a state-of-the-art 5.99% Word Error Rate on the Jacktol ATC-ASR test split, trained in under an hour on a single H200; 200+ Hugging Face downloads a month at peak, now averaging 70.
 
 == Publications
 
+// Italic, not bold: paper titles are conventionally italicised, and a bold
+// run this long outweighed every job title on the page. The venue on the
+// right is the signal a reader is actually scanning for.
+// Verified against aclanthology.org/2025.acl-long.916: Main Conference,
+// Volume 1 (Long Papers), not Findings. The BibTeX byline is
+// "Han, Kenneth Chen Ko" - the same name as the header, so there is no
+// name mismatch to explain away.
 #generic-one-by-two(
-  left: [*Crowdsource, Crawl, or Generate? Creating SEA-VL, a Multicultural Vision-Language Dataset for Southeast Asia*],
-  right: "ACL 2025",
+  left: [_Crowdsource, Crawl, or Generate? Creating SEA-VL, a Multicultural Vision-Language Dataset for Southeast Asia_],
+  right: link("https://aclanthology.org/2025.acl-long.916/")[ACL 2025],
 )
-- Co-author (bylined "Kenneth Ko Han Chen") on a 100+ author SEACrowd collaboration; annotated Myanmar-specific imagery and contributed to paper writing.
+- Co-author on a 100+ author SEACrowd collaboration; annotated Myanmar-specific imagery and contributed to the writing.
 
 == Awards and Competitions
 
 // NOTE: the blank lines between these are load-bearing. Without a paragraph
 // break, consecutive generic-one-by-two calls reflow into a single run-on
-// paragraph instead of one line per award.
-#generic-one-by-two(
-  left: [*Lee Kuan Yew Award for Mathematics & Science* -- top graduate of cohort, Singapore Polytechnic],
-  right: "2024",
-)
+// paragraph instead of one line per award. The `set par` tightens the gap
+// those breaks would otherwise open up - the default was eating a visible
+// band of whitespace for a two-line section.
+//
+// The two Singapore Polytechnic awards (Lee Kuan Yew Award, IMDA Gold Medal)
+// live under Education instead, to save the vertical space.
+#[
+  #set par(spacing: 0.5em)
 
-#generic-one-by-two(
-  left: [*IMDA Gold Medal* -- top student in the diploma, Singapore Polytechnic],
-  right: "2024",
-)
+  #generic-one-by-two(
+    left: [*TCS CodeVita S10* -- 8th of 100,000+ students globally; 17th of 30 at the Grand Finale, Hyderabad],
+    right: "2023",
+  )
 
-#generic-one-by-two(
-  left: [*TCS CodeVita S10* -- 8th of 100,000+ students globally; 17th of 30 at the Grand Finale, Hyderabad],
-  right: "2023",
-)
+  #generic-one-by-two(
+    left: [*USA Computing Olympiad* -- Gold Division],
+    right: "2025",
+  )
 
-#generic-one-by-two(
-  left: [*USA Computing Olympiad* -- Gold Division],
-  right: "2025",
-)
+  // BrainHack runs CODE_EXP (the hackathon) and TIL-AI (the AI challenge) as
+  // separate activities. The hawker analytics build was CODE_EXP, so that is
+  // the name here - not TIL. The underscore looks doubled on screen; that is
+  // New Computer Modern's bold underscore glyph, and it extracts as one
+  // character, which is what an ATS reads.
+  #generic-one-by-two(
+    left: [*DSTA BrainHack CODE_EXP* -- finalist; built a "pocket data scientist" advising hawkers on sales and demand trends],
+    right: "2024",
+  )
+]
 
 == Skills
 
-*Languages*: Python, C++, JavaScript, SQL \
-*AI/ML*: PyTorch, NVIDIA NeMo, OpenCV, YOLO, Grounding DINO, Transformers, LLM agents, LoRA, VAEs \
-*Web and Infra*: Next.js, React, Docker, AWS Lambda, GCP, NVIDIA CUDA, MLOps, Git
+// Deliberately repeats tools already named in the bullets above. Many ATS
+// parsers lift this section into a structured skills field and match against
+// that, so a keyword that appears only in prose can be missed entirely.
+*Languages*: Python, C++, TypeScript, JavaScript, SQL, HTML, CSS, Bash \
+*Machine Learning*: PyTorch, Hugging Face, NVIDIA NeMo, vLLM, scikit-learn, NumPy, Pandas, OpenCV, LoRA, Hyperopt, Weights & Biases \
+*Web and Data*: Next.js, React, FastAPI, Node.js, Tailwind CSS, MySQL, MongoDB, Supabase, OpenAI API \
+*Cloud and Tooling*: AWS (EKS, SageMaker), Docker, Vercel, Render, Git, LaTeX, Typst

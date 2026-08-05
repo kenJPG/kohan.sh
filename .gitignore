@@ -4,3 +4,10 @@ dist
 # Generated at build time by scripts/generate.mjs.
 # The resume PDFs elsewhere in public/ ARE committed - see README.
 public/img/
+
+# The "-full" builds carry the real phone number instead of "+65 XXXX XXXX".
+# They are for sending to people directly, NOT for the public site: anything
+# committed under public/ is served at kohan.sh under a guessable URL.
+# Build them locally with `pnpm resume:build:full`.
+public/kenneth-chen-ko-han-resume-full.pdf
+public/kenneth-chen-ko-han-resume-full-letter.pdf
