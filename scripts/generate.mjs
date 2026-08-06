@@ -263,6 +263,14 @@ const html = `<!DOCTYPE html>
   <meta name="description" content="${esc(description)}">
   <title>${esc(content.name)}${role ? ` · ${esc(role)}` : ""}</title>
   <link rel="canonical" href="https://kohan.sh/">
+  <!-- Favicons are pre-upscaled with nearest-neighbour: browsers ignore
+       image-rendering on tab icons, so a bare 16x16 gets smoothed into mush on
+       a hidpi display. 16 covers 1x, 32 covers 2x, 180 is the iOS home screen
+       (flattened, because iOS composites transparency onto black). -->
+  <link rel="icon" type="image/png" sizes="16x16" href="/command-block.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta name="theme-color" content="#ffffff">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
