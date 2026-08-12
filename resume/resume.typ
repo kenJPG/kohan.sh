@@ -1,5 +1,25 @@
 #import "@preview/basic-resume:0.2.9": *
 
+// The template's #work puts the role in bold on the first line and the
+// company in plain text underneath. Recruiters and ATS parsers scan for the
+// employer first — the company is the signal that decides whether the rest of
+// the entry gets read — so this override swaps the emphasis: company name
+// leads, bold; the role follows on the second line. Layout matches the
+// template's generic-two-by-two exactly, only the strong() moves.
+#let work(
+  title: "",
+  dates: "",
+  company: "",
+  location: "",
+) = {
+  generic-two-by-two(
+    top-left: strong(company),
+    top-right: dates,
+    bottom-left: title,
+    bottom-right: emph(location),
+  )
+}
+
 // Paper size is switched at compile time so one source produces both outputs:
 //   typst compile resume/resume.typ --input paper=a4        public/kenneth-chen-ko-han-resume.pdf
 //   typst compile resume/resume.typ --input paper=us-letter public/kenneth-chen-ko-han-resume-letter.pdf
