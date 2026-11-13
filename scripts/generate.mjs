@@ -319,3 +319,31 @@ const html = `<!DOCTYPE html>
 
 writeFileSync(OUT_PATH, html);
 console.log(`\n  ✓ Generated index.html (${(html.length / 1024).toFixed(1)} KB)`);
+
+// ── Gated resume (/generate) ──────────────────────────────────────────────
+// A password page that decrypts the encrypted contact blob (public/generate/
+// contact.enc.json) in the browser and renders the resume with the real phone.
+// The resume body here is built from the same content.json as index.html, so
+// it cannot drift from what the public site shows. Only the phone number is
+// kept secret - it lives in the AES-GCM blob, never in this HTML.
+function buildGeneratePage(content) {
+  const data = {
+    name: content.name,
+    tagline: content.role ?? "",
+    location: content.location,
+    email: content.email,
+    links: content.links ?? {},
+    experience: content.experience ?? [],
+    research: content.research ?? [],
+    education: content.education ?? [],
+    skills: content.skills ?? {},
+  };
+  const dataJson = JSON.stringify(data).replace(/</g, "\\u003c");
+  const tmplPath = join(import.meta.dirname, "generate.html.tmpl");
+  if (!existsSync(tmplPath)) return; // keep the index build working without it
+  const html = readFileSync(tmplPath, "utf-8").replace("@@RESUME_DATA@@", dataJson);
+  writeFileSync(join(PUBLIC_DIR, "generate.html"), html);
+  console.log(`  ✓ Generated generate.html (gated · encrypted contact)`);
+}
+
+buildGeneratePage(content);

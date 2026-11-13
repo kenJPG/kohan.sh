@@ -15,3 +15,9 @@
 /resume/   /kenneth-chen-ko-han-resume.pdf    302
 /cv        /kenneth-chen-ko-han-resume.pdf    302
 /cv/       /kenneth-chen-ko-han-resume.pdf    302
+
+# The gated resume needs the passphrase to decrypt the contact details. It is
+# a static page (no worker): the phone is only revealed after the browser
+# decrypts the AES-256-GCM blob, so it is never served at a guessable URL.
+/generate  /generate.html   302
+/generate/ /generate.html   302
