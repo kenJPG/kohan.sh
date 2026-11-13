@@ -6,7 +6,8 @@
   <title>Resume · Kenneth Chen Ko Han</title>
   <style>
     * { box-sizing: border-box; }
-    html, body { margin: 0; background: #fff; color: #171717;
+    [hidden] { display: none !important; }
+    html, body { margin: 0; height: 100%; background: #fff; color: #171717;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       font-size: 15px; line-height: 1.5; }
 
@@ -20,48 +21,17 @@
     .lock button:hover { opacity: .88; }
     #err { margin: 0; min-height: 18px; color: #b42318; font-size: 14px; }
 
-    /* ── toolbar (not printed) ──────────────────────────────────── */
-    .bar { display: flex; gap: 8px; justify-content: center; padding: 10px;
-      border-bottom: 1px solid #e8e8e6; }
-    .bar button { font: inherit; padding: 6px 14px; border: 1px solid #ccc;
-      border-radius: 6px; background: #fff; cursor: pointer; }
+    /* ── PDF viewer ─────────────────────────────────────────────── */
+    .viewer { display: flex; flex-direction: column; height: 100vh; }
+    .bar { display: flex; gap: 8px; justify-content: center; align-items: center;
+      padding: 8px; border-bottom: 1px solid #e8e8e6; background: #fafafa; }
+    .bar a, .bar button { font: inherit; padding: 6px 14px; border: 1px solid #ccc;
+      border-radius: 6px; background: #fff; cursor: pointer; text-decoration: none; color: inherit; }
     .bar .primary { background: #171717; color: #fff; border-color: #171717; }
-
-    /* ── resume ─────────────────────────────────────────────────── */
-    .resume { max-width: 820px; margin: 0 auto; padding: 24px 32px 48px; }
-    .resume h1 { font-size: 24px; margin: 0; }
-    .contact { list-style: none; padding: 0; margin: 6px 0 0; display: flex;
-      flex-wrap: wrap; gap: 4px 10px; font-size: 13px; color: #444; }
-    .contact li::after { content: "·"; margin-left: 10px; color: #bbb; }
-    .contact li:last-child::after { content: ""; }
-    .resume section { border-top: 1px solid #e8e8e6; padding-top: 12px; margin-top: 12px; }
-    .resume h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
-      color: #6b6b6b; margin: 0 0 8px; }
-    .job { margin-bottom: 10px; }
-    .job__top { display: flex; justify-content: space-between; gap: 12px; }
-    .job__role { font-weight: 600; margin: 0; }
-    .job__org { margin: 1px 0 0; font-size: 13px; color: #666; }
-    .job__date { font-size: 12px; color: #6b6b6b; white-space: nowrap; }
-    .job__body { margin: 4px 0 0; }
-    .tags { list-style: none; padding: 0; margin: 5px 0 0; display: flex; flex-wrap: wrap; gap: 3px 8px; }
-    .tags li { font-size: 11.5px; color: #6b6b6b; }
-    a { color: inherit; text-decoration: none; border-bottom: 1px solid #ccc; }
-
-    @media print {
-      .bar, .lock { display: none !important; }
-      body { font-size: 11.5px; }
-      .resume { max-width: none; padding: 0; }
-      .job { break-inside: avoid; }
-      @page { size: A4; margin: 12mm 14mm; }
-    }
+    .viewer iframe { flex: 1; width: 100%; border: 0; }
   </style>
 </head>
 <body>
-  <div class="bar" id="bar" hidden>
-    <button class="primary" onclick="window.print()">Print / Save PDF</button>
-    <button onclick="location.reload()">Lock</button>
-  </div>
-
   <div class="lock" id="lock">
     <form id="lockform">
       <input id="pw" type="password" placeholder="Password" autocomplete="off" autofocus aria-label="Password">
@@ -70,23 +40,15 @@
     <p id="err" hidden></p>
   </div>
 
-  <article class="resume" id="resume" hidden></article>
+  <div class="viewer" id="viewer" hidden>
+    <div class="bar">
+      <a class="primary" id="dl" download="kenneth-chen-ko-han-resume.pdf" target="_blank" rel="noreferrer">Download PDF</a>
+      <button onclick="location.reload()">Lock</button>
+    </div>
+    <iframe id="pdf" title="Resume PDF"></iframe>
+  </div>
 
 <script>
-// Injected by scripts/generate.mjs (single source of truth = content.json).
-const RESUME = @@RESUME_DATA@@;
-
-const enc = (s) => String(s == null ? "" : s)
-  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-const link = (label, url) => `<a href="${enc(url)}" rel="noreferrer" target="_blank">${enc(label)}</a>`;
-
-// Accepts a comma-separated string OR an array - experience `tech` and
-// education `coursework` arrive as strings, skills values as strings too.
-const tags = (v) => {
-  const arr = Array.isArray(v) ? v : String(v || "").split(",");
-  return arr.map((t) => t.trim()).filter(Boolean).map((t) => `<li>${enc(t)}</li>`).join("");
-};
-
 const b64ToBytes = (s) => {
   const bin = atob(s); const a = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i += 1) a[i] = bin.charCodeAt(i);
@@ -95,77 +57,6 @@ const b64ToBytes = (s) => {
 // AES-GCM in Web Crypto wants ciphertext || tag concatenated (Node's cipher
 // API takes the tag separately). flatMap must spread into arrays to flatten.
 const cat = (...b64) => Uint8Array.from(b64.flatMap((s) => [...b64ToBytes(s)]));
-
-function renderExperience(list) {
-  return list.map((e) => `<div class="job">
-    <div class="job__top">
-      <div>
-        <p class="job__role">${enc(e.role)}</p>
-        <p class="job__org">${e.url ? link(e.company, e.url) : enc(e.company)}</p>
-      </div>
-      <span class="job__date">${enc(e.date)}</span>
-    </div>
-    ${e.description ? `<p class="job__body">${enc(e.description)}</p>` : ""}
-    ${e.tech ? `<ul class="tags">${tags(e.tech)}</ul>` : ""}
-  </div>`).join("");
-}
-
-function renderResearch(list) {
-  return list.map((e) => `<div class="job">
-    <div class="job__top">
-      <p class="job__role">${enc(e.title)}</p>
-      <span class="job__date">${enc(e.org)}</span>
-    </div>
-    ${e.detail ? `<p class="job__body">${enc(e.detail)}</p>` : ""}
-  </div>`).join("");
-}
-
-function renderEducation(list) {
-  return list.map((e) => `<div class="job">
-    <div class="job__top">
-      <div>
-        <p class="job__role">${enc(e.school)}</p>
-        <p class="job__org">${enc(e.degree)}</p>
-      </div>
-      <span class="job__date">${enc(e.date)}</span>
-    </div>
-    ${e.gpa ? `<p class="job__body">GPA ${enc(e.gpa)}</p>` : ""}
-    ${e.awards ? `<p class="job__body">${enc(e.awards)}</p>` : ""}
-    ${e.coursework ? `<ul class="tags">${tags(e.coursework)}</ul>` : ""}
-  </div>`).join("");
-}
-
-function renderSkills(skills) {
-  return Object.entries(skills).map(([label, value]) =>
-    `<div class="job"><p class="job__org">${enc(label)}</p><ul class="tags">${tags(value)}</ul></div>`
-  ).join("");
-}
-
-function showResume(c) {
-  const r = RESUME;
-  const contact = [
-    c.phone ? `<li><strong>${enc(c.phone)}</strong></li>` : "",
-    c.email ? `<li>${link(c.email, "mailto:" + c.email)}</li>` : "",
-    c.location ? `<li>${enc(c.location)}</li>` : "",
-    r.links.github ? `<li>${link("github", r.links.github)}</li>` : "",
-    r.links.linkedin ? `<li>${link("linkedin", r.links.linkedin)}</li>` : "",
-  ].join("");
-
-  document.getElementById("resume").innerHTML = `
-    <header>
-      <h1>${enc(r.name)}</h1>
-      ${r.tagline ? `<p class="job__org">${enc(r.tagline)}</p>` : ""}
-      <ul class="contact">${contact}</ul>
-    </header>
-    <section><h2>Experience</h2>${renderExperience(r.experience || [])}</section>
-    <section><h2>Research &amp; Community</h2>${renderResearch(r.research || [])}</section>
-    <section><h2>Education</h2>${renderEducation(r.education || [])}</section>
-    <section><h2>Skills</h2>${renderSkills(r.skills || {})}</section>`;
-
-  document.getElementById("lock").hidden = true;
-  document.getElementById("resume").hidden = false;
-  document.getElementById("bar").hidden = false;
-}
 
 async function unlock(event) {
   event.preventDefault();
@@ -176,15 +67,15 @@ async function unlock(event) {
 
   let blob;
   try {
-    const res = await fetch("contact.enc.json");
+    const res = await fetch("resume.enc.json");
     if (!res.ok) throw new Error("load");
     blob = await res.json();
   } catch {
-    err.hidden = false; err.textContent = "Could not load data.";
+    err.hidden = false; err.textContent = "Could not load resume.";
     return;
   }
 
-  let contact;
+  let bytes;
   try {
     const material = await crypto.subtle.importKey(
       "raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]);
@@ -192,17 +83,19 @@ async function unlock(event) {
       { name: "PBKDF2", salt: b64ToBytes(blob.salt), iterations: blob.iterations, hash: "SHA-256" },
       material, 256);
     const key = await crypto.subtle.importKey("raw", bits, { name: "AES-GCM" }, false, ["decrypt"]);
-    const plain = await crypto.subtle.decrypt(
+    bytes = await crypto.subtle.decrypt(
       { name: "AES-GCM", iv: b64ToBytes(blob.nonce) }, key, cat(blob.ciphertext, blob.tag));
-    contact = JSON.parse(new TextDecoder().decode(plain));
   } catch {
     err.hidden = false; err.textContent = "Wrong password.";
     return;
   }
 
-  // Outside the decrypt try/catch on purpose: a render error must not read as
-  // a bad password (that was the old bug).
-  showResume(contact);
+  // Turn the decrypted PDF bytes into a blob URL and show it in the viewer.
+  const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+  document.getElementById("pdf").src = url;
+  document.getElementById("dl").href = url;
+  document.getElementById("lock").hidden = true;
+  document.getElementById("viewer").hidden = false;
 }
 
 document.getElementById("lockform").addEventListener("submit", unlock);

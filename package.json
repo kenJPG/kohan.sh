@@ -15,7 +15,8 @@
     "resume:build": "typst compile resume/resume.typ --input paper=a4 public/kenneth-chen-ko-han-resume.pdf && typst compile resume/resume.typ --input paper=us-letter public/kenneth-chen-ko-han-resume-letter.pdf",
     "resume:build:full": "typst compile resume/resume.typ --input paper=a4 --input \"phone=$CONTACT_PHONE\" public/kenneth-chen-ko-han-resume-full.pdf && typst compile resume/resume.typ --input paper=us-letter --input \"phone=$CONTACT_PHONE\" public/kenneth-chen-ko-han-resume-full-letter.pdf",
     "resume:watch": "typst watch resume/resume.typ --input paper=a4 public/kenneth-chen-ko-han-resume.pdf",
-    "resume:check": "node scripts/check-resume.mjs"
+    "resume:check": "node scripts/check-resume.mjs",
+    "resume:encrypt": "node scripts/encrypt-resume.mjs"
   },
   "devDependencies": {
     "sharp": "^0.34.5",
