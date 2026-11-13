@@ -151,7 +151,7 @@ async function unlockForm(event) {
 
   let blob;
   try {
-    const res = await fetch("generate/contact.enc.json");
+    const res = await fetch("contact.enc.json");
     if (!res.ok) throw new Error("contact file missing");
     blob = await res.json();
   } catch (e) {

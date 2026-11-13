@@ -342,8 +342,10 @@ function buildGeneratePage(content) {
   const tmplPath = join(import.meta.dirname, "generate.html.tmpl");
   if (!existsSync(tmplPath)) return; // keep the index build working without it
   const html = readFileSync(tmplPath, "utf-8").replace("@@RESUME_DATA@@", dataJson);
-  writeFileSync(join(PUBLIC_DIR, "generate.html"), html);
-  console.log(`  ✓ Generated generate.html (gated · encrypted contact)`);
+  const genDir = join(PUBLIC_DIR, "generate");
+  mkdirSync(genDir, { recursive: true });
+  writeFileSync(join(genDir, "index.html"), html);
+  console.log(`  ✓ Generated generate/index.html (gated · encrypted contact)`);
 }
 
 buildGeneratePage(content);
