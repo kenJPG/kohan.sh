@@ -5,251 +5,207 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Resume · Kenneth Chen Ko Han</title>
   <style>
-    :root {
-      --paper: #ffffff;
-      --ink: #171717;
-      --muted: #6b6b6b;
-      --rule: #e8e8e6;
-      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      --mono: ui-monospace, SFMono-Regular, Consolas, monospace;
-    }
     * { box-sizing: border-box; }
-    html, body { margin: 0; background: var(--paper); color: var(--ink);
-      font-family: var(--sans); font-size: 15px; line-height: 1.5; }
+    html, body { margin: 0; background: #fff; color: #171717;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 15px; line-height: 1.5; }
 
-    /* ── Lock screen ─────────────────────────────────────────────── */
+    /* ── password screen: barebones ─────────────────────────────── */
     .lock { min-height: 100vh; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 14px; padding: 24px;
-      text-align: center; }
-    .lock__box { width: min(420px, 100%); display: flex; flex-direction: column;
-      gap: 10px; padding: 28px; border: 1px solid var(--rule); border-radius: 10px; }
-    .lock h1 { font-size: 20px; font-weight: 600; margin: 0; }
-    .lock p { margin: 0; color: var(--muted); font-size: 13px; }
-    .lock input { font: inherit; padding: 10px 12px; border: 1px solid var(--rule);
-      border-radius: 6px; width: 100%; }
-    .lock button { font: inherit; padding: 10px 14px; border: 0; border-radius: 6px;
-      background: var(--ink); color: var(--paper); cursor: pointer; }
-    .lock button:hover { opacity: 0.88; }
-    .lock .err { color: #b42318; font-size: 13px; min-height: 16px; text-align: left; }
-    .lock .hint { font-family: var(--mono); font-size: 11px; word-break: break-all;
-      background: var(--surface); border-radius: 6px; padding: 8px 10px; text-align: left; }
+      align-items: center; justify-content: center; gap: 10px; padding: 24px; }
+    .lock form { display: flex; gap: 8px; }
+    .lock input { font: inherit; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; }
+    .lock button { font: inherit; padding: 8px 14px; border: 0; border-radius: 6px;
+      background: #171717; color: #fff; cursor: pointer; }
+    .lock button:hover { opacity: .88; }
+    #err { margin: 0; min-height: 18px; color: #b42318; font-size: 14px; }
 
-    /* ── Resume ─────────────────────────────────────────────── */
-    .resume { max-width: 820px; margin: 0 auto; padding: 8px 32px 48px; }
-    .resume__head { margin-bottom: 14px; }
-    .resume__name { font-size: 26px; font-weight: 600; margin: 0; letter-spacing: -0.02em; }
-    .resume__tagline { margin: 2px 0 0; color: var(--muted); }
-    .resume__contact { list-style: none; padding: 0; margin: 8px 0 0; display: flex;
-      flex-wrap: wrap; gap: 6px 10px; font-size: 12.5px; }
-    .resume__contact li { display: flex; align-items: center; gap: 6px; }
-    .resume__contact li::before { content: "·"; color: var(--muted); }
-    .resume__contact li:first-child::before { content: none; }
-    .resume__contact a { color: inherit; text-decoration: none;
-      border-bottom: 1px solid color-mix(in srgb, var(--ink) 24%, transparent); }
-    .resume__contact a:hover { border-bottom-color: var(--ink); }
-    .resume__contact .lock-badge { font-size: 11px; color: var(--muted);
-      border: 1px solid var(--rule); border-radius: 999px; padding: 1px 8px; }
+    /* ── toolbar (not printed) ──────────────────────────────────── */
+    .bar { display: flex; gap: 8px; justify-content: center; padding: 10px;
+      border-bottom: 1px solid #e8e8e6; }
+    .bar button { font: inherit; padding: 6px 14px; border: 1px solid #ccc;
+      border-radius: 6px; background: #fff; cursor: pointer; }
+    .bar .primary { background: #171717; color: #fff; border-color: #171717; }
 
-    .resume section { padding-block: 10px; border-top: 1px solid var(--rule); }
-    .resume section:first-of-type { padding-top: 12px; }
-    .resume h2 { font-size: 12px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.06em; color: var(--muted); margin: 0 0 6px; }
-
-    .r-entry { display: grid; grid-template-columns: 7.5fr 1fr; gap: 8px; padding-block: 8px; }
-    .r-entry:first-of-type { padding-top: 0; }
-    .r-entry__main { min-width: 0; }
-    .r-entry__title { font-weight: 600; margin: 0; line-height: 1.25; }
-    .r-entry__org { margin: 1px 0 0; font-size: 12.5px; color: var(--muted); }
-    .r-entry__org a { color: inherit; text-decoration: none;
-      border-bottom: 1px solid color-mix(in srgb, var(--ink) 24%, transparent); }
-    .r-entry__org a:hover { border-bottom-color: var(--ink); }
-    .r-entry__body { margin: 5px 0 0; }
-    .r-entry__dates, .r-entry__meta { font-size: 11.5px; color: var(--muted);
-      font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
-    .r-entry__gpa { margin: 2px 0 0; font-weight: 500; font-size: 12px; }
-
-    .r-tags { list-style: none; padding: 0; margin: 6px 0 0; display: flex;
-      flex-wrap: wrap; gap: 4px 8px; }
-    .r-tags li { font-size: 11px; color: var(--muted); }
-
-    .r-skill { display: grid; grid-template-columns: 9fr 1fr; gap: 10px; padding-block: 5px; }
-    .r-skill dt { font-size: 11.5px; color: var(--muted); font-weight: 600; }
-    .r-skill dd { margin: 0; }
-    .r-skill dd ul { list-style: none; padding: 0; margin: 0; display: flex;
-      flex-wrap: wrap; gap: 4px 8px; }
-    .r-skill dd ul li { font-size: 11px; color: var(--muted); }
-
-    /* ── Toolbar (never printed) ─────────────────────────────── */
-    .toolbar { position: sticky; top: 0; display: flex; gap: 8px; justify-content: center;
-      padding: 10px; background: color-mix(in srgb, var(--ink) 6%, var(--paper));
-      border-bottom: 1px solid var(--rule); z-index: 10; }
-    .toolbar button { font: inherit; padding: 7px 14px; border: 1px solid var(--rule);
-      border-radius: 6px; background: var(--paper); cursor: pointer; }
-    .toolbar button:hover { border-color: var(--ink); }
-    .toolbar .primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    /* ── resume ─────────────────────────────────────────────────── */
+    .resume { max-width: 820px; margin: 0 auto; padding: 24px 32px 48px; }
+    .resume h1 { font-size: 24px; margin: 0; }
+    .contact { list-style: none; padding: 0; margin: 6px 0 0; display: flex;
+      flex-wrap: wrap; gap: 4px 10px; font-size: 13px; color: #444; }
+    .contact li::after { content: "·"; margin-left: 10px; color: #bbb; }
+    .contact li:last-child::after { content: ""; }
+    .resume section { border-top: 1px solid #e8e8e6; padding-top: 12px; margin-top: 12px; }
+    .resume h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+      color: #6b6b6b; margin: 0 0 8px; }
+    .job { margin-bottom: 10px; }
+    .job__top { display: flex; justify-content: space-between; gap: 12px; }
+    .job__role { font-weight: 600; margin: 0; }
+    .job__org { margin: 1px 0 0; font-size: 13px; color: #666; }
+    .job__date { font-size: 12px; color: #6b6b6b; white-space: nowrap; }
+    .job__body { margin: 4px 0 0; }
+    .tags { list-style: none; padding: 0; margin: 5px 0 0; display: flex; flex-wrap: wrap; gap: 3px 8px; }
+    .tags li { font-size: 11.5px; color: #6b6b6b; }
+    a { color: inherit; text-decoration: none; border-bottom: 1px solid #ccc; }
 
     @media print {
-      .toolbar, .lock { display: none !important; }
-      body { font-size: 12px; }
+      .bar, .lock { display: none !important; }
+      body { font-size: 11.5px; }
       .resume { max-width: none; padding: 0; }
-      .resume section { break-inside: avoid; }
+      .job { break-inside: avoid; }
       @page { size: A4; margin: 12mm 14mm; }
     }
   </style>
 </head>
 <body>
-  <div class="toolbar" id="toolbar" hidden>
-    <button class="primary" onclick="window.print()">Print · Save as PDF</button>
-    <button onclick="location.reload()">Lock &amp; reset</button>
+  <div class="bar" id="bar" hidden>
+    <button class="primary" onclick="window.print()">Print / Save PDF</button>
+    <button onclick="location.reload()">Lock</button>
   </div>
 
   <div class="lock" id="lock">
-    <div class="lock__box">
-      <h1>Protected resume</h1>
-      <p>Enter the passphrase to decrypt the contact details and render the resume. Nothing leaves this page.</p>
-      <form id="lockform">
-        <input type="password" id="pw" autocomplete="off" autofocus
-               placeholder="Passphrase" aria-label="Passphrase">
-        <button type="submit">Unlock</button>
-      </form>
-      <p class="err" id="err" role="alert" hidden></p>
-      <p class="hint">Tip: the key is case-sensitive and long. It is not recoverable if lost.</p>
-    </div>
+    <form id="lockform">
+      <input id="pw" type="password" placeholder="Password" autocomplete="off" autofocus aria-label="Password">
+      <button type="submit">Unlock</button>
+    </form>
+    <p id="err" hidden></p>
   </div>
 
-  <article class="resume" id="resume" hidden aria-labelledby="r-exp"></article>
+  <article class="resume" id="resume" hidden></article>
 
 <script>
 // Injected by scripts/generate.mjs (single source of truth = content.json).
 const RESUME = {"name":"Kenneth Chen Ko Han","tagline":"AI Engineer","location":"Singapore","email":"kenneth.chen1337@gmail.com","links":{"github":"https://github.com/kenJPG","linkedin":"https://linkedin.com/in/kenneth-chen-ko-han","huggingface":"https://huggingface.co/qenneth"},"experience":[{"company":"Makeable.build","role":"Technical Interviewer","date":"July 2026 - Present","description":"San Francisco startup backed by Afore Capital, with $250K in pre-seed funding. I designed and run the technical interview loop, assessing the engineering candidates the founders shortlist.","url":"https://makeable.build"},{"company":"Resumify","logo":"resumify.png","role":"AI Lead, Co-founder","date":"2023 - 2026","description":"Co-founded non-profit with YellowRibbon.gov.sg, HTX, and Singapore Prison Service. AI-powered resume services now delivered to 600+ users. Collaborating with SPD (Society for the Physically Disabled); hosted a sharing session training career facilitators on using the platform. Awarded SGD 24,000 in funding by the National Youth Council. Signed 12-month MOU with YellowRibbon. Featured in The Business Times and [Lianhe Zaobao](https://www.zaobao.com.sg/realtime/singapore/story20250729-7237751).","tech":"Next.js, LLM Agents, OpenAI API, ElevenLabs, Vercel, Render, Supabase, SQL","url":"https://resumify.org"},{"company":"Republic of Singapore Air Force (RAiD)","logo":"raid.png","role":"AI Engineer Volunteer","date":"2023 - June 2026","description":"Built the full-stack system that analyses Air Traffic Control situations: an NVIDIA NeMo speech recognition and speaker diarisation layer (finetuned parakeet-tdt, canary-1b and NGPU-LM) feeding a Qwen3 reasoning layer served with vLLM, deployed to edge devices for real-time transcription in the control room. Built an LLM-powered internal search tool at a RAiD hackathon hosted at Microsoft's office.","tech":"NVIDIA NeMo, vLLM, Qwen3, PyTorch, Edge Deployment"},{"company":"Bifrost AI","logo":"bifrost.jpeg","role":"AI Intern","date":"2024","description":"Series A startup building synthetic data solutions for AI companies, backed by Sequoia Capital. Prototyped a zero-shot method with JinaCLIP to visualise missing data for NASA, BigBear AI and DSTA. Trained YOLOv6-lite for military tank detection with ST Engineering's Unmanned Vehicles Team; tuning for incremental learning lifted accuracy 16%+. Fine-tuned a StabilityAI VAE for synthetic-to-real domain adaptation.","tech":"YOLO, VAE, JinaCLIP, OpenCV"},{"company":"GovTech Singapore","logo":"govtech.png","role":"AI Engineer Intern","date":"2023 - 2024","description":"Video Analytics team, Data Science and AI Division. Red-teamed GovTech's AI Image Detector with custom-trained LoRAs. Lead AI engineer on a computer vision pipeline for MSO's OneService App on AWS (EKS, SageMaker), classifying thousands of daily municipal reports via zero-shot ensembles. Built real-time animal welfare detection for NParks with OWLv2, tuned by Bayesian optimisation (Hyperopt). Prototyped a novel object-detection explainability method using SegGPT and SAM.","tech":"OWLv2, LoRA, Few-Shot Segmentation, XAI"}],"research":[{"title":"Unserious research","org":"2025","detail":"State-of-the-art 5.99% Word Error Rate on the [Air Traffic Control Automatic Speech Recognition (ATC-ASR) benchmark](https://huggingface.co/qenneth/parakeet-tdt-0.6b-v3-finetuned-for-ATC), with a parakeet-tdt-0.6b-v3 finetuned in under an hour on a single H200. Peaked at 200+ downloads a month, now averaging around 70"},{"title":"SEA-VL Contributor","org":"SEACrowd, 2025","detail":"Co-author on [Crowdsource, Crawl, or Generate? Creating SEA-VL](https://aclanthology.org/2025.acl-long.916/), ACL 2025 Main Conference — annotated Myanmar-specific imagery and contributed to the writing"},{"title":"Founder, Competitive Programming Interest Group","org":"SP, 2022","detail":"150+ member Discord / 3 workshops / 3 competitions / team ranked top 6% globally at Reply CodeTeen"},{"title":"Vice President, AI Club","org":"SP, 2022","detail":"Nationwide hackathon across all 5 polytechnics, sponsored by Google and AI Singapore"}],"education":[{"school":"National University of Singapore, NUS College","date":"2026 - May 2029","degree":"Bachelors in Computer Science, Minor in Mathematics","awards":"NUS Merit Scholarship — awarded to high-calibre freshmen on academic results, leadership qualities and co-curricular record"},{"school":"Singapore Polytechnic","date":"2021 - 2024","degree":"Diploma in Applied AI and Analytics","awards":"Lee Kuan Yew Award for Mathematics & Science (top tech graduate) / IMDA Gold Medal (top all-around achiever) / SP Scholarship","gpa":"4.0 / 4.0","coursework":"Deep Learning, Machine Learning, Reinforcement Learning, Full-Stack Development, DevOps, Data Analytics, Data Engineering, Data Visualisation"}],"skills":{"Languages":"Python, C++, TypeScript, JavaScript, SQL, HTML, CSS, Bash","Machine Learning":"PyTorch, Hugging Face, NVIDIA NeMo, vLLM, scikit-learn, NumPy, Pandas, OpenCV, LoRA, Hyperopt, Weights & Biases","Web & Data":"Next.js, React, FastAPI, Node.js, Tailwind CSS, MySQL, MongoDB, Supabase, OpenAI API","Cloud & Tooling":"AWS, AWS EKS, AWS SageMaker, Docker, Vercel, Render, Git, LaTeX, Typst"}};
 
-const $ = (id) => document.getElementById(id);
 const enc = (s) => String(s == null ? "" : s)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-const link = (label, url) => `<a href="${enc(url)}" rel="noreferrer target="_blank">${enc(label)}</a>`;
-const tags = (arr) => (arr || []).map((t) => `<li>${enc(t)}</li>`).join("");
+const link = (label, url) => `<a href="${enc(url)}" rel="noreferrer" target="_blank">${enc(label)}</a>`;
 
-function b64ToBytes(b64) {
-  const bin = atob(b64); const arr = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i += 1) arr[i] = bin.charCodeAt(i);
-  return arr;
+// Accepts a comma-separated string OR an array - experience `tech` and
+// education `coursework` arrive as strings, skills values as strings too.
+const tags = (v) => {
+  const arr = Array.isArray(v) ? v : String(v || "").split(",");
+  return arr.map((t) => t.trim()).filter(Boolean).map((t) => `<li>${enc(t)}</li>`).join("");
+};
+
+const b64ToBytes = (s) => {
+  const bin = atob(s); const a = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i += 1) a[i] = bin.charCodeAt(i);
+  return a;
+};
+// AES-GCM in Web Crypto wants ciphertext || tag concatenated (Node's cipher
+// API takes the tag separately). flatMap must spread into arrays to flatten.
+const cat = (...b64) => Uint8Array.from(b64.flatMap((s) => [...b64ToBytes(s)]));
+
+function renderExperience(list) {
+  return list.map((e) => `<div class="job">
+    <div class="job__top">
+      <div>
+        <p class="job__role">${enc(e.role)}</p>
+        <p class="job__org">${e.url ? link(e.company, e.url) : enc(e.company)}</p>
+      </div>
+      <span class="job__date">${enc(e.date)}</span>
+    </div>
+    ${e.description ? `<p class="job__body">${enc(e.description)}</p>` : ""}
+    ${e.tech ? `<ul class="tags">${tags(e.tech)}</ul>` : ""}
+  </div>`).join("");
 }
 
-// Web Crypto's AES-GCM wants the auth tag APPENDED to the ciphertext - the
-// opposite of Node's createDecipheriv, which takes it as a separate blob.
-// Note the spread: Array#flatMap only flattens real arrays, so each b64 must be
-// turned into a number array or the two buffers would nest instead of join.
-function tagCt(...b64s) {
-  return Uint8Array.from(b64s.flatMap((s) => [...b64ToBytes(s)]));
+function renderResearch(list) {
+  return list.map((e) => `<div class="job">
+    <div class="job__top">
+      <p class="job__role">${enc(e.title)}</p>
+      <span class="job__date">${enc(e.org)}</span>
+    </div>
+    ${e.detail ? `<p class="job__body">${enc(e.detail)}</p>` : ""}
+  </div>`).join("");
 }
 
-async function unlockForm(event) {
+function renderEducation(list) {
+  return list.map((e) => `<div class="job">
+    <div class="job__top">
+      <div>
+        <p class="job__role">${enc(e.school)}</p>
+        <p class="job__org">${enc(e.degree)}</p>
+      </div>
+      <span class="job__date">${enc(e.date)}</span>
+    </div>
+    ${e.gpa ? `<p class="job__body">GPA ${enc(e.gpa)}</p>` : ""}
+    ${e.awards ? `<p class="job__body">${enc(e.awards)}</p>` : ""}
+    ${e.coursework ? `<ul class="tags">${tags(e.coursework)}</ul>` : ""}
+  </div>`).join("");
+}
+
+function renderSkills(skills) {
+  return Object.entries(skills).map(([label, value]) =>
+    `<div class="job"><p class="job__org">${enc(label)}</p><ul class="tags">${tags(value)}</ul></div>`
+  ).join("");
+}
+
+function showResume(c) {
+  const r = RESUME;
+  const contact = [
+    c.phone ? `<li><strong>${enc(c.phone)}</strong></li>` : "",
+    c.email ? `<li>${link(c.email, "mailto:" + c.email)}</li>` : "",
+    c.location ? `<li>${enc(c.location)}</li>` : "",
+    r.links.github ? `<li>${link("github", r.links.github)}</li>` : "",
+    r.links.linkedin ? `<li>${link("linkedin", r.links.linkedin)}</li>` : "",
+  ].join("");
+
+  document.getElementById("resume").innerHTML = `
+    <header>
+      <h1>${enc(r.name)}</h1>
+      ${r.tagline ? `<p class="job__org">${enc(r.tagline)}</p>` : ""}
+      <ul class="contact">${contact}</ul>
+    </header>
+    <section><h2>Experience</h2>${renderExperience(r.experience || [])}</section>
+    <section><h2>Research &amp; Community</h2>${renderResearch(r.research || [])}</section>
+    <section><h2>Education</h2>${renderEducation(r.education || [])}</section>
+    <section><h2>Skills</h2>${renderSkills(r.skills || {})}</section>`;
+
+  document.getElementById("lock").hidden = true;
+  document.getElementById("resume").hidden = false;
+  document.getElementById("bar").hidden = false;
+}
+
+async function unlock(event) {
   event.preventDefault();
-  const err = $("err"); const pw = $("pw").value;
+  const pw = document.getElementById("pw").value;
+  const err = document.getElementById("err");
   err.hidden = true;
   if (!pw) return;
 
   let blob;
   try {
     const res = await fetch("contact.enc.json");
-    if (!res.ok) throw new Error("contact file missing");
+    if (!res.ok) throw new Error("load");
     blob = await res.json();
-  } catch (e) {
-    err.hidden = false; err.textContent = "Could not load the encrypted blob.";
+  } catch {
+    err.hidden = false; err.textContent = "Could not load data.";
     return;
   }
 
-  const errBox = err;
+  let contact;
   try {
     const material = await crypto.subtle.importKey(
       "raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]);
-    const secret = await crypto.subtle.deriveBits(
+    const bits = await crypto.subtle.deriveBits(
       { name: "PBKDF2", salt: b64ToBytes(blob.salt), iterations: blob.iterations, hash: "SHA-256" },
       material, 256);
-    const key = await crypto.subtle.importKey(
-      "raw", secret, { name: "AES-GCM" }, false, ["decrypt"]);
-    const plain = new TextDecoder().decode(
-      await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv: b64ToBytes(blob.nonce) }, key, tagCt(blob.ciphertext, blob.tag)));
-    showResume(JSON.parse(plain));
-  } catch (e) {
-    errBox.hidden = false;
-    errBox.textContent = "Incorrect passphrase.";
+    const key = await crypto.subtle.importKey("raw", bits, { name: "AES-GCM" }, false, ["decrypt"]);
+    const plain = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: b64ToBytes(blob.nonce) }, key, cat(blob.ciphertext, blob.tag));
+    contact = JSON.parse(new TextDecoder().decode(plain));
+  } catch {
+    err.hidden = false; err.textContent = "Wrong password.";
+    return;
   }
+
+  // Outside the decrypt try/catch on purpose: a render error must not read as
+  // a bad password (that was the old bug).
+  showResume(contact);
 }
 
-function contactLine(c) {
-  const items = [];
-  if (c.phone) items.push(`<strong>${enc(c.phone)}</strong>`);
-  if (c.email) items.push(link(c.email, `mailto:${enc(c.email)}`));
-  if (c.location) items.push(enc(c.location));
-  const gh = RESUME.links?.github;
-  const li = RESUME.links?.linkedin;
-  if (gh) items.push(link("github", gh));
-  if (li) items.push(link("linkedin", li));
-  return `<ul class="resume__contact">${items.join("")}<li class="lock-badge">🔒 decrypted locally</li></ul>`;
-}
-
-function renderExperience(list) {
-  return list.map((e) => `<div class="r-entry">
-    <div class="r-entry__main">
-      <h3 class="r-entry__title">${enc(e.role)}</h3>
-      ${e.url ? `<p class="r-entry__org">${link(e.company, e.url)}</p>` : `<p class="r-entry__org">${enc(e.company)}</p>`}
-      ${e.description ? `<p class="r-entry__body">${enc(e.description)}</p>` : ""}
-      ${tags(e.tech) ? `<ul class="r-tags">${tags(e.tech)}</ul>` : ""}
-    </div>
-    <div class="r-entry__dates">${enc(e.date)}</div>
-  </div>`).join("");
-}
-
-function renderResearch(list) {
-  return list.map((e) => `<div class="r-entry">
-    <div class="r-entry__main">
-      <h3 class="r-entry__title">${enc(e.title)}</h3>
-      ${e.detail ? `<p class="r-entry__body">${enc(e.detail)}</p>` : ""}
-    </div>
-    <div class="r-entry__meta">${enc(e.org)}</div>
-  </div>`).join("");
-}
-
-function renderEducation(list) {
-  return list.map((e) => `<div class="r-entry">
-    <div class="r-entry__main">
-      <h3 class="r-entry__title">${enc(e.school)}</h3>
-      ${e.degree ? `<p class="r-entry__org">${enc(e.degree)}</p>` : ""}
-      ${e.gpa ? `<p class="r-entry__gpa">GPA ${enc(e.gpa)}</p>` : ""}
-      ${e.awards ? `<p class="r-entry__body">${enc(e.awards)}</p>` : ""}
-      ${e.coursework ? `<ul class="r-tags">${tags(e.coursework)}</ul>` : ""}
-    </div>
-    <div class="r-entry__dates">${enc(e.date)}</div>
-  </div>`).join("");
-}
-
-function renderSkills(skills) {
-  return Object.entries(skills).map(([label, value]) =>
-    `<div class="r-skill"><dt>${enc(label)}</dt><dd><ul>${tags(value.split(","))}</ul></dd></div>`
-  ).join("");
-}
-
-function showResume(c) {
-  const r = RESUME;
-  $("resume").innerHTML = `
-    <header class="resume__head">
-      <h1 class="resume__name">${enc(r.name)}</h1>
-      ${r.tagline ? `<p class="resume__tagline">${enc(r.tagline)}</p>` : ""}
-      ${contactLine(c)}
-    </header>
-    <section><h2>Experience</h2>${renderExperience(r.experience)}</section>
-    <section><h2>Research &amp; Community</h2>${renderResearch(r.research)}</section>
-    <section><h2>Education</h2>${renderEducation(r.education)}</section>
-    <section><h2>Skills</h2><div>${renderSkills(r.skills)}</div></section>`;
-
-  $("lock").hidden = true;
-  $("resume").hidden = false;
-  $("toolbar").hidden = false;
-}
-
-$("lockform").addEventListener("submit", unlockForm);
+document.getElementById("lockform").addEventListener("submit", unlock);
 </script>
 </body>
 </html>
