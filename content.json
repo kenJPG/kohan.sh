@@ -23,43 +23,42 @@
   "bio": "I build AI systems that ship to production — computer vision pipelines, speech recognition, voice agents. Most of my work sits at the intersection of \"make the model work\" and \"make it work reliably\"",
   "experience": [
     {
-      "company": "Makeable.build",
-      "role": "Technical Interviewer",
-      "date": "July 2026 - Present",
-      "description": "San Francisco startup backed by Afore Capital, with $250K in pre-seed funding. I designed and run the technical interview loop, assessing the engineering candidates the founders shortlist.",
-      "url": "https://makeable.build"
+      "company": "NUS College Club",
+      "role": "Team Lead",
+      "date": "Oct 2026 - Present",
+      "description": "Led a team of 3 engineers and 1 PM to ship the NUS College end-of-semester dinner ticketing system ([ticket.nusc.club](https://ticket.nusc.club)) for 900+ attendees. Built QR-code check-in with atomic updates and encryption of student data, and ensured compliance with NUS data privacy policy, making the case to NUS College administration on the system's security and reliability."
     },
     {
       "company": "Resumify",
       "logo": "resumify.png",
-      "role": "AI Lead, Co-founder",
-      "date": "2023 - 2026",
-      "description": "Co-founded non-profit with YellowRibbon.gov.sg, HTX, and Singapore Prison Service. AI-powered resume services now delivered to 600+ users. Collaborating with SPD (Society for the Physically Disabled); hosted a sharing session training career facilitators on using the platform. Awarded SGD 24,000 in funding by the National Youth Council. Signed 12-month MOU with YellowRibbon. Featured in The Business Times and [Lianhe Zaobao](https://www.zaobao.com.sg/realtime/singapore/story20250729-7237751).",
+      "role": "Co-founder and AI Lead",
+      "date": "Nov 2023 - Aug 2026",
+      "description": "Non-profit built with YellowRibbon.gov.sg, HTX and the Singapore Prison Service ([resumify.org](https://resumify.org)); AI-powered resume services delivered to 600+ users. Awarded SGD 24,000 in funding by the National Youth Council; signed a 12-month MOU with YellowRibbon; featured in The Business Times and [Lianhe Zaobao](https://www.zaobao.com.sg/realtime/singapore/story20250729-7237751). Collaborated with SPD (Society for the Physically Disabled); hosted a sharing session to train career facilitators on using the platform.",
       "tech": "Next.js, LLM Agents, OpenAI API, ElevenLabs, Vercel, Render, Supabase, SQL",
       "url": "https://resumify.org"
     },
     {
       "company": "Republic of Singapore Air Force (RAiD)",
       "logo": "raid.png",
-      "role": "AI Engineer Volunteer",
-      "date": "2023 - June 2026",
-      "description": "Built the full-stack system that analyses Air Traffic Control situations: an NVIDIA NeMo speech recognition and speaker diarisation layer (finetuned parakeet-tdt, canary-1b and NGPU-LM) feeding a Qwen3 reasoning layer served with vLLM, deployed to edge devices for real-time transcription in the control room. Built an LLM-powered internal search tool at a RAiD hackathon hosted at Microsoft's office.",
+      "role": "AI Engineer (Volunteer)",
+      "date": "Oct 2023 - Jun 2026",
+      "description": "Built the full-stack system that analyses Air Traffic Control situations: an NVIDIA NeMo speech recognition and speaker diarisation layer (fine-tuned parakeet-tdt, canary-1b and NGPU-LM) feeding a Qwen3 reasoning layer served with vLLM. Deployed it to edge devices for real-time transcription in the control room; presented to the Chief of Air Force. Built an LLM-powered internal search tool at a RAiD hackathon hosted at Microsoft's office.",
       "tech": "NVIDIA NeMo, vLLM, Qwen3, PyTorch, Edge Deployment"
     },
     {
       "company": "Bifrost AI",
       "logo": "bifrost.jpeg",
       "role": "AI Intern",
-      "date": "2024",
-      "description": "Series A startup building synthetic data solutions for AI companies, backed by Sequoia Capital. Prototyped a zero-shot method with JinaCLIP to visualise missing data for NASA, BigBear AI and DSTA. Trained YOLOv6-lite for military tank detection with ST Engineering's Unmanned Vehicles Team; tuning for incremental learning lifted accuracy 16%+. Fine-tuned a StabilityAI VAE for synthetic-to-real domain adaptation.",
+      "date": "Apr 2024 - Jun 2024",
+      "description": "Series A startup building synthetic data solutions for AI companies, backed by Sequoia Capital. Trained YOLOv6-lite for military tank detection with ST Engineering's Unmanned Vehicles Team; tuning for incremental learning lifted accuracy 16%+. Fine-tuned a StabilityAI VAE to improve text and high-frequency reconstruction for synthetic-to-real domain adaptation. Prototyped a zero-shot method with JinaCLIP to visualise missing data for NASA, BigBear AI and DSTA.",
       "tech": "YOLO, VAE, JinaCLIP, OpenCV"
     },
     {
       "company": "GovTech Singapore",
       "logo": "govtech.png",
       "role": "AI Engineer Intern",
-      "date": "2023 - 2024",
-      "description": "Video Analytics team, Data Science and AI Division. Red-teamed GovTech's AI Image Detector with custom-trained LoRAs. Lead AI engineer on a computer vision pipeline for MSO's OneService App on AWS (EKS, SageMaker), classifying thousands of daily municipal reports via zero-shot ensembles. Built real-time animal welfare detection for NParks with OWLv2, tuned by Bayesian optimisation (Hyperopt). Prototyped a novel object-detection explainability method using SegGPT and SAM.",
+      "date": "Apr 2023 - Mar 2024",
+      "description": "Video Analytics team, Data Science and AI Division. Lead AI engineer on a computer vision pipeline for MSO's OneService App on AWS (EKS, SageMaker), classifying thousands of daily municipal reports via zero-shot ensembles. Built real-time animal welfare detection for NParks with OWLv2, tuned by Bayesian optimisation (Hyperopt); the pitch secured executive-board funding. Red-teamed GovTech's AI Image Detector with custom-trained LoRAs simulating locally contextualised deepfakes. Prototyped a novel feature-explainability method for object detection using SegGPT and SAM.",
       "tech": "OWLv2, LoRA, Few-Shot Segmentation, XAI"
     }
   ],
@@ -87,14 +86,14 @@
   ],
   "education": [
     {
-      "school": "National University of Singapore, NUS College",
-      "date": "2026 - May 2029",
-      "degree": "Bachelors in Computer Science, Minor in Mathematics",
+      "school": "National University of Singapore",
+      "date": "Aug 2026 - May 2029",
+      "degree": "B.Comp. in Computer Science (NUS College), Minor in Mathematics",
       "awards": "NUS Merit Scholarship — awarded to high-calibre freshmen on academic results, leadership qualities and co-curricular record"
     },
     {
       "school": "Singapore Polytechnic",
-      "date": "2021 - 2024",
+      "date": "Apr 2021 - Apr 2024",
       "degree": "Diploma in Applied AI and Analytics",
       "awards": "Lee Kuan Yew Award for Mathematics & Science (top tech graduate) / IMDA Gold Medal (top all-around achiever) / SP Scholarship",
       "gpa": "4.0 / 4.0",
